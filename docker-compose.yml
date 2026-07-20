@@ -1,0 +1,13 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Leave empty for local/self-hosted (root domain).
+        # Only set this to "/your-repo-name" if you're testing the
+        # GitHub Pages project-site path locally.
+        BASE_PATH: ""
+    ports:
+      - "80:80"
+    restart: unless-stopped
