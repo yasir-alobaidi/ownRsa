@@ -4,10 +4,25 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        # Leave empty for local/self-hosted (root domain).
-        # Only set this to "/your-repo-name" if you're testing the
-        # GitHub Pages project-site path locally.
         BASE_PATH: ""
     ports:
-      - "80:80"
+      - "9000:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    environment:
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+      TWILIO_FROM_NUMBER: ${TWILIO_FROM_NUMBER:-}
+      DISPATCHER_PHONE: ${DISPATCHER_PHONE:-}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
+      RATE_LIMIT_MAX_PER_IP: ${RATE_LIMIT_MAX_PER_IP:-}
+      MAX_REQUESTS_PER_DAY: ${MAX_REQUESTS_PER_DAY:-}
+    expose:
+      - "3001"
     restart: unless-stopped

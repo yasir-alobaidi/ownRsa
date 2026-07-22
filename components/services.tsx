@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { SERVICES } from "@/lib/services";
 import { SERVICE_ICONS } from "./icons";
 
@@ -17,13 +18,13 @@ export function Services() {
           {SERVICES.map((service) => {
             const Icon = SERVICE_ICONS[service.id];
             return (
-              <div className="service-card" key={service.id}>
+              <Link className="service-card" href={`/services/${service.id}/`} key={service.id}>
                 <div className="service-icon">
                   <Icon />
                 </div>
                 <h3>{service.name}</h3>
                 <p>{service.description}</p>
-              </div>
+              </Link>
             );
           })}
         </div>

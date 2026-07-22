@@ -54,6 +54,10 @@ export function Footer() {
         </div>
         <div className="footer-bottom">
           <p>© 2026 {BUSINESS.name}. All rights reserved.</p>
+          <div className="footer-legal-links">
+            <Link href="/terms/">Terms of Service</Link>
+            <Link href="/privacy/">Privacy Policy</Link>
+          </div>
           <p>{BUSINESS.domain}</p>
         </div>
       </div>

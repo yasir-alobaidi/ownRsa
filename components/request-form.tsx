@@ -1,14 +1,31 @@
 "use client";
 
-import { useState, useEffect, type FormEvent } from "react";
+import { useState, useEffect, useRef, type FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { SERVICES, BUSINESS, type ServiceId } from "@/lib/services";
-import { FORM_ENDPOINT } from "@/lib/config";
-import { SERVICE_ICONS, CheckOnlyIcon, ChevronLeftIcon, ChevronRightIcon, CheckIcon, AlertIcon } from "./icons";
+import { REQUEST_API_URL } from "@/lib/config";
+import {
+  formatGpsForMaps,
+  googleMapsUrl,
+  parseGpsCoords,
+} from "@/lib/location";
+import {
+  SERVICE_ICONS,
+  CheckOnlyIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  CheckIcon,
+  AlertIcon,
+  LocationCrosshairIcon,
+} from "./icons";
 
 interface FormState {
   services: ServiceId[];
   notSure: boolean;
   location: string;
+  gpsLat: number | null;
+  gpsLng: number | null;
   locationNotes: string;
   name: string;
   phone: string;
@@ -19,6 +36,8 @@ const INITIAL_STATE: FormState = {
   services: [],
   notSure: false,
   location: "",
+  gpsLat: null,
+  gpsLng: null,
   locationNotes: "",
   name: "",
   phone: "",
@@ -29,19 +48,40 @@ const STEP_LABELS = ["Services", "Location", "Contact"];
 
 function isPhoneLikelyValid(phone: string) {
   const digits = phone.replace(/\D/g, "");
-  return digits.length >= 7;
+  return digits.length >= 10;
+}
+
+function getMapsUrl(location: string, gpsLat: number | null, gpsLng: number | null) {
+  if (gpsLat != null && gpsLng != null) {
+    return googleMapsUrl(location, gpsLat, gpsLng);
+  }
+  const parsed = parseGpsCoords(location);
+  if (parsed) {
+    return googleMapsUrl(location, parsed.lat, parsed.lng);
+  }
+  return googleMapsUrl(location);
 }
 
 export function RequestForm() {
+  const searchParams = useSearchParams();
   const [step, setStep] = useState(1);
-  const [data, setData] = useState<FormState>(INITIAL_STATE);
+  const [data, setData] = useState<FormState>(() => {
+    // Lets a link like /request/?service=towing (used by the per-service
+    // landing pages) arrive with that service already checked.
+    const preselect = searchParams.get("service");
+    if (preselect && SERVICES.some((s) => s.id === preselect)) {
+      return { ...INITIAL_STATE, services: [preselect as ServiceId] };
+    }
+    return INITIAL_STATE;
+  });
   const [touched, setTouched] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [referenceId, setReferenceId] = useState<string | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [geoError, setGeoError] = useState<string | null>(null);
+  const honeypotRef = useRef<HTMLInputElement>(null);
 
-  // Always show the top of the new step (or the success screen) instead of
-  // leaving the visitor at whatever scroll position the previous step ended on.
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [step, referenceId]);
@@ -49,6 +89,10 @@ export function RequestForm() {
   const step1Valid = data.services.length > 0 || data.notSure;
   const step2Valid = data.location.trim().length > 0;
   const step3Valid = data.name.trim().length > 0 && isPhoneLikelyValid(data.phone);
+
+  const mapsLink = data.location.trim()
+    ? getMapsUrl(data.location, data.gpsLat, data.gpsLng)
+    : null;
 
   function toggleService(id: ServiceId) {
     setData((prev) => ({
@@ -89,40 +133,41 @@ export function RequestForm() {
       ? "Not sure yet"
       : data.services.map((id) => SERVICES.find((s) => s.id === id)?.name).join(", ");
 
+    const ref = `TRA-${Date.now().toString(36).toUpperCase()}`;
+    const mapsUrl = getMapsUrl(data.location, data.gpsLat, data.gpsLng);
+
     const payload = {
-      _subject: `New service request from ${data.name}`,
-      name: data.name,
-      phone: data.phone,
-      email: data.email || "(not provided)",
+      referenceId: ref,
+      name: data.name.trim(),
+      phone: data.phone.trim(),
+      email: data.email.trim() || "",
       services: serviceNames,
-      location: data.location,
-      location_notes: data.locationNotes || "(none)",
+      location: data.location.trim(),
+      gpsLat: data.gpsLat,
+      gpsLng: data.gpsLng,
+      locationNotes: data.locationNotes.trim() || "(none)",
+      mapsUrl,
+      website: honeypotRef.current?.value || "",
     };
 
-    const isConfigured = !FORM_ENDPOINT.includes("YOUR_FORM_ID");
-
-    if (!isConfigured) {
-      // Form backend hasn't been configured yet (see lib/config.ts) -- fall
-      // back to a local-only demo so the flow still feels complete.
-      console.warn(
-        "[texas-roadside-assist] FORM_ENDPOINT is not configured yet -- this submission was not sent anywhere. See lib/config.ts."
-      );
-      await new Promise((r) => setTimeout(r, 700));
-      setReferenceId(`TRA-${Date.now().toString(36).toUpperCase()}`);
-      setSubmitting(false);
-      return;
-    }
-
     try {
-      const res = await fetch(FORM_ENDPOINT, {
+      const res = await fetch(REQUEST_API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify(payload),
       });
+
+      const body = await res.json().catch(() => ({}));
+
       if (!res.ok) {
-        throw new Error("Something went wrong. Please call us instead.");
+        throw new Error(
+          typeof body.error === "string"
+            ? body.error
+            : "Something went wrong. Please call us instead."
+        );
       }
-      setReferenceId(`TRA-${Date.now().toString(36).toUpperCase()}`);
+
+      setReferenceId(body.referenceId || ref);
     } catch (err) {
       setSubmitError(
         err instanceof Error ? err.message : "Something went wrong. Please call us instead."
@@ -133,19 +178,41 @@ export function RequestForm() {
   }
 
   function useMyLocation() {
-    if (!("geolocation" in navigator)) return;
+    if (!("geolocation" in navigator)) {
+      setGeoError("GPS is not available in this browser.");
+      return;
+    }
+
+    setLocating(true);
+    setGeoError(null);
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
         setData((prev) => ({
           ...prev,
-          location: `GPS coordinates: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`,
+          location: formatGpsForMaps(latitude, longitude),
+          gpsLat: latitude,
+          gpsLng: longitude,
         }));
+        setLocating(false);
       },
       () => {
-        /* permission denied or unavailable -- user can just type the location */
-      }
+        setGeoError("Could not get your location. Type your address or cross streets instead.");
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
+  }
+
+  function handleLocationChange(value: string) {
+    const parsed = parseGpsCoords(value);
+    setData((prev) => ({
+      ...prev,
+      location: value,
+      gpsLat: parsed?.lat ?? null,
+      gpsLng: parsed?.lng ?? null,
+    }));
   }
 
   if (referenceId) {
@@ -158,7 +225,7 @@ export function RequestForm() {
         <p>
           Thanks{data.name ? `, ${data.name.split(" ")[0]}` : ""} — a dispatcher will
           call you at <strong>{data.phone}</strong> shortly to confirm the details
-          {data.services.length === 0 && !data.notSure ? "" : " and get you help."}
+          and get you help.
         </p>
         <p className="ref">Reference: {referenceId}</p>
       </div>
@@ -186,7 +253,7 @@ export function RequestForm() {
       {step === 1 && (
         <div className="request-card">
           <h2>What do you need help with?</h2>
-          <p className="step-sub">Select everything that applies.</p>
+          <p className="step-sub">Tap everything that applies — you can pick more than one.</p>
           <div className="service-check-grid">
             {SERVICES.map((service) => {
               const Icon = SERVICE_ICONS[service.id];
@@ -220,7 +287,7 @@ export function RequestForm() {
             </span>
           </label>
           {touched && !step1Valid && (
-            <p className="form-error">Pick at least one option, or "Not sure".</p>
+            <p className="form-error">Pick at least one option, or &quot;Not sure&quot;.</p>
           )}
           <div className="request-nav">
             <span className="spacer" />
@@ -236,7 +303,7 @@ export function RequestForm() {
         <div className="request-card">
           <h2>Where are you?</h2>
           <p className="step-sub">
-            A street address, cross streets, mile marker, or nearby landmark all work.
+            Street address, cross streets, mile marker, or GPS — whatever gets our driver to you fastest.
           </p>
           <div className="form-group">
             <label htmlFor="rf-location">Location</label>
@@ -245,12 +312,29 @@ export function RequestForm() {
               type="text"
               placeholder="e.g. I-35E near Mockingbird Ln, Dallas"
               value={data.location}
-              onChange={(e) => setData((p) => ({ ...p, location: e.target.value }))}
+              onChange={(e) => handleLocationChange(e.target.value)}
             />
             {touched && !step2Valid && <p className="form-error">Let us know roughly where you are.</p>}
-            <button type="button" className="geo-btn" onClick={useMyLocation}>
-              Use my current GPS location
+            <button
+              type="button"
+              className="geo-btn"
+              onClick={useMyLocation}
+              disabled={locating}
+            >
+              <LocationCrosshairIcon />
+              {locating ? "Getting GPS\u2026" : "Use my current GPS location"}
             </button>
+            {geoError && <p className="form-error">{geoError}</p>}
+            {mapsLink && (
+              <p className="geo-hint">
+                Google Maps ready — copy{" "}
+                <code className="geo-coords">{data.location}</code> or{" "}
+                <a href={mapsLink} target="_blank" rel="noopener noreferrer">
+                  open directions
+                </a>
+                .
+              </p>
+            )}
           </div>
           <div className="form-group">
             <label htmlFor="rf-notes">
@@ -279,10 +363,19 @@ export function RequestForm() {
 
       {step === 3 && (
         <form className="request-card" onSubmit={handleSubmit} noValidate>
+          <input
+            ref={honeypotRef}
+            type="text"
+            name="website"
+            className="hp-field"
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            defaultValue=""
+          />
           <h2>How can we reach you?</h2>
           <p className="step-sub">
-            Phone and name are all we need to call you back. Everything else is
-            optional — we'll ask for it on the phone if it's missing.
+            Phone and name are all we need. A dispatcher will text-alert our team and call you back right away.
           </p>
 
           <div className="review-list">
@@ -298,7 +391,15 @@ export function RequestForm() {
             </div>
             <div className="review-row">
               <span className="k">Location</span>
-              <span className={`v${!data.location ? " empty" : ""}`}>{data.location || "Not provided"}</span>
+              <span className={`v${!data.location ? " empty" : ""}`}>
+                {data.location || "Not provided"}
+                {mapsLink && data.location && (
+                  <>
+                    {" "}
+                    (<a href={mapsLink} target="_blank" rel="noopener noreferrer">Maps</a>)
+                  </>
+                )}
+              </span>
             </div>
           </div>
 
@@ -313,16 +414,16 @@ export function RequestForm() {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="rf-phone">Phone Number</label>
+            <label htmlFor="rf-phone">Phone Number (US)</label>
             <input
               id="rf-phone"
               type="tel"
-              placeholder="(214) 555-0100"
+              placeholder="(945) 555-0100"
               value={data.phone}
               onChange={(e) => setData((p) => ({ ...p, phone: e.target.value }))}
             />
             {touched && !step3Valid && (
-              <p className="form-error">A valid name and phone number are required.</p>
+              <p className="form-error">A valid name and US phone number are required.</p>
             )}
           </div>
           <div className="form-group">
@@ -344,6 +445,11 @@ export function RequestForm() {
               {submitError}
             </div>
           )}
+
+          <p className="form-consent">
+            By submitting, you agree to our <Link href="/terms/">Terms of Service</Link> and{" "}
+            <Link href="/privacy/">Privacy Policy</Link>.
+          </p>
 
           <div className="request-nav">
             <button type="button" className="btn btn-outline" onClick={goBack} disabled={submitting}>

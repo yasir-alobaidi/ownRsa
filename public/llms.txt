@@ -1,0 +1,33 @@
+# Texas Roadside Assist
+
+> 24/7 roadside assistance across the Dallas-Fort Worth Metroplex (Texas, USA). Licensed and insured. Average response time under 30 minutes.
+
+Texas Roadside Assist is a local roadside assistance company based in Dallas, TX, serving the greater Dallas-Fort Worth Metroplex: Dallas, Fort Worth, Arlington, Irving, Grand Prairie, Mesquite, Garland, Richardson, Plano, Frisco, McKinney, Allen, Carrollton, Lewisville, Denton, The Colony, Euless, Bedford, Hurst, North Richland Hills, Grapevine, Coppell, Farmers Branch, Addison, Rockwall, Rowlett, Sachse, and Wylie.
+
+## Services
+- Towing: light and medium-duty towing to any shop, dealership, or address.
+- Battery Change or Jump-Start: jump-start or on-the-spot battery replacement.
+- Tire Change: swap in a spare or a used tire.
+- Flat Tire Fix: patch or repair a flat without a full swap.
+- Fuel Delivery: fuel brought to your location when you run out of gas.
+- Unlock Wheel Locks: removal of lost-key wheel/lug nut locks.
+- Locked Out: lockout assistance with no vehicle damage.
+- Winching & Recovery: recovery from ditches, mud, or tight spots.
+
+## Contact
+- Phone: (945) 412-1215
+- Email: help@texasroadsideassist.com
+- Available 24 hours a day, 7 days a week
+- Online request form: https://texasroadsideassist.com/request/
+
+## Pages
+- Homepage: https://texasroadsideassist.com/
+- Request Service: https://texasroadsideassist.com/request/
+- Towing: https://texasroadsideassist.com/services/towing/
+- Battery Change or Jump-Start: https://texasroadsideassist.com/services/battery-jump/
+- Tire Change: https://texasroadsideassist.com/services/tire-change/
+- Flat Tire Fix: https://texasroadsideassist.com/services/flat-tire-fix/
+- Fuel Delivery: https://texasroadsideassist.com/services/fuel-delivery/
+- Unlock Wheel Locks: https://texasroadsideassist.com/services/wheel-lock/
+- Locked Out: https://texasroadsideassist.com/services/lockout/
+- Winching & Recovery: https://texasroadsideassist.com/services/winching/

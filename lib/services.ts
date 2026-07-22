@@ -1,9 +1,11 @@
 export type ServiceId =
   | "towing"
-  | "jump-start"
-  | "flat-tire"
-  | "lockout"
+  | "battery-jump"
+  | "tire-change"
+  | "flat-tire-fix"
   | "fuel-delivery"
+  | "wheel-lock"
+  | "lockout"
   | "winching";
 
 export interface ServiceDef {
@@ -16,36 +18,42 @@ export const SERVICES: ServiceDef[] = [
   {
     id: "towing",
     name: "Towing",
-    description:
-      "Light and medium-duty towing to any shop, dealership, or address you choose.",
+    description: "Light and medium-duty tow to any shop, dealership, or address.",
   },
   {
-    id: "jump-start",
-    name: "Battery Jump-Start",
-    description:
-      "A dead battery won't ruin your day \u2014 we'll get your engine running again in minutes.",
+    id: "battery-jump",
+    name: "Battery Change or Jump-Start",
+    description: "Dead battery? We jump-start or replace it on the spot.",
   },
   {
-    id: "flat-tire",
-    name: "Flat Tire Change",
-    description: "We'll swap in your spare and have you back on the road safely.",
+    id: "tire-change",
+    name: "Tire Change",
+    description: "Swap in your spare or a used tire so you can keep moving.",
   },
   {
-    id: "lockout",
-    name: "Lockout Service",
-    description:
-      "Locked your keys inside? We'll get you back in fast, with no damage to your vehicle.",
+    id: "flat-tire-fix",
+    name: "Flat Tire Fix",
+    description: "Patch or repair a flat tire when a full swap isn't needed.",
   },
   {
     id: "fuel-delivery",
     name: "Fuel Delivery",
-    description: "Ran out of gas? We'll bring enough fuel to get you to the nearest station.",
+    description: "Out of gas? We bring fuel to get you to the nearest station.",
+  },
+  {
+    id: "wheel-lock",
+    name: "Unlock Wheel Locks",
+    description: "Lost your wheel lock key? We'll get the locks off safely.",
+  },
+  {
+    id: "lockout",
+    name: "Locked Out",
+    description: "Keys locked inside? We'll get you back in — no damage.",
   },
   {
     id: "winching",
     name: "Winching & Recovery",
-    description:
-      "Stuck in a ditch, mud, or a tight spot? We'll pull your vehicle free safely.",
+    description: "Stuck in a ditch, mud, or tight spot? We'll pull you free.",
   },
 ];
 
@@ -53,20 +61,38 @@ export const CITIES = [
   "Dallas",
   "Fort Worth",
   "Arlington",
-  "Plano",
   "Irving",
-  "Garland",
-  "Mesquite",
   "Grand Prairie",
+  "Mesquite",
+  "Garland",
   "Richardson",
+  "Plano",
+  "Frisco",
+  "McKinney",
+  "Allen",
   "Carrollton",
+  "Lewisville",
+  "Denton",
+  "The Colony",
+  "Euless",
+  "Bedford",
+  "Hurst",
+  "North Richland Hills",
+  "Grapevine",
+  "Coppell",
+  "Farmers Branch",
+  "Addison",
+  "Rockwall",
+  "Rowlett",
+  "Sachse",
+  "Wylie",
 ];
 
 export const BUSINESS = {
   name: "Texas Roadside Assist",
   shortName: "TRA",
-  phoneDisplay: "(214) 555-0139",
-  phoneTel: "+12145550139",
+  phoneDisplay: "(945) 412-1215",
+  phoneTel: "+19454121215",
   email: "help@texasroadsideassist.com",
   domain: "texasroadsideassist.com",
 };

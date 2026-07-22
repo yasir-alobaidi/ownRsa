@@ -21,25 +21,59 @@ This writes fully static HTML/CSS/JS to the `out/` folder. You can open `out/ind
 
 ## Before you launch: things to update
 
-Everything below is a clearly-labeled placeholder. Search for these and replace them with your real details:
+Domain (`texasroadsideassist.com`), phone (`(945) 412-1215`), and email (`help@texasroadsideassist.com`) are all real -- confirmed and set in `lib/services.ts` (`BUSINESS`), and already threaded through `app/layout.tsx` (`metadataBase`), `lib/schema.ts` (`SITE_URL`), the sitemap/robots/OG image, and `public/llms.txt`. The phone number doubles as `DISPATCHER_PHONE` -- the same line receives the SMS for online requests.
 
-| What | Where | Current placeholder |
+What's still open:
+
+| What | Where | Status |
 |---|---|---|
-| Phone number | `lib/services.ts` (`BUSINESS`) | `(214) 555-0139` -- this is a fictional number (the `555-01xx` block is reserved for fiction), not a working line |
-| Email | `lib/services.ts` (`BUSINESS`) | `help@texasroadsideassist.com` |
-| Domain | `lib/services.ts` and `app/layout.tsx` (`metadataBase`) | `texasroadsideassist.com` |
-| Form backend | `lib/config.ts` (`FORM_ENDPOINT`) | `https://formspree.io/f/YOUR_FORM_ID` -- **required** for the request form to actually notify you, see below |
+| Form backend | `.env` + `docker compose` (Twilio SMS API) | Not yet configured -- runs in demo mode until it is. See **SMS dispatch setup** below |
+| Google Business Profile | business.google.com (outside this repo) | Planned, not started -- needed for local "map pack" / Maps results |
 
-## Making the request form actually notify you
+## SMS dispatch setup (Twilio)
 
-This site is statically exported, so there's no server of ours to receive form submissions -- GitHub Pages only serves files. The "Request Service" form instead posts directly from the visitor's browser to [Formspree](https://formspree.io), a free service built for exactly this.
+Online service requests are sent as an **SMS to your dispatcher** via [Twilio](https://www.twilio.com). The message includes the customer's name, phone, selected services, location (with a **Google Maps link** when GPS is used), and any notes.
 
-1. Create a free account at formspree.io
-2. Create a new form and copy its endpoint URL (looks like `https://formspree.io/f/abcdwxyz`)
-3. Paste it into `FORM_ENDPOINT` in `lib/config.ts`
-4. Every submission gets emailed to you -- no further code changes needed
+1. Create a Twilio account and buy a **US phone number** (Messaging capable).
+2. Copy `.env.example` to `.env` in the project root and fill in:
+   - `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` — from the Twilio console
+   - `TWILIO_FROM_NUMBER` — your Twilio number (E.164 format, e.g. `+12145550100`)
+   - `DISPATCHER_PHONE` — the number that should receive SMS alerts; already `+19454121215` in `.env.example` (the real main line, which doubles as the dispatcher's number)
+3. Start with Docker: `docker compose up --build`
+4. Submit a test request at `http://localhost:9000/request/`
 
-Until you do this, the form still works end-to-end as a demo (it shows the same success screen) but the submission isn't sent anywhere; you'll see a console warning reminding you it's unconfigured. Prefer a different provider (Web3Forms, Getform, Basin)? Swap the URL and, if needed, adjust the `fetch` call in `components/request-form.tsx` to match their field format.
+Until Twilio is configured, the API still accepts submissions in **demo mode** (logs the SMS body to the container console instead of sending).
+
+### Abuse / cost protection
+
+Every accepted request sends one real, billed SMS, so `/api/request` layers a few checks (all in `api/index.js`, no extra dependency): a per-IP rate limit, a hidden honeypot field that silently no-ops bot submissions, de-duping identical back-to-back submissions, and a hard daily request cap as a worst-case spend ceiling. Tunable via `RATE_LIMIT_MAX_PER_IP`, `MAX_REQUESTS_PER_DAY`, and `ALLOWED_ORIGINS` in `.env` (defaults in `.env.example`).
+
+### GPS / Google Maps
+
+When a customer taps **Use my current GPS location**, the form fills in coordinates like `32.776720, -96.796990` — paste that directly into Google Maps search, or tap the **open directions** link. The same Google Maps URL is included in the dispatcher SMS.
+
+### Local dev (frontend + API)
+
+```bash
+npm install && npm run dev          # site at http://localhost:3000
+cd api && npm install && npm run dev # API at http://localhost:3001
+```
+
+Create `.env.local` with `NEXT_PUBLIC_API_URL=http://localhost:3001/api/request` so the form hits the local API.
+
+## Going live with HTTPS (Cloudflare)
+
+There's no TLS anywhere in this repo's Docker/nginx setup on purpose -- it's meant to sit behind Cloudflare, which is both the simplest way to get free HTTPS here and gives a global CDN cache for the static assets as a side effect. Nginx is already configured to trust Cloudflare's real-IP headers (see the `set_real_ip_from` block in `nginx.conf`), so this is just account/DNS setup, no code changes needed:
+
+1. Add the site to Cloudflare and point `texasroadsideassist.com`'s nameservers at Cloudflare (done at your domain registrar).
+2. Add a DNS **A record** for the domain pointing at this server's public IP, with the proxy toggle **on** (orange cloud, not grey).
+3. In Cloudflare's SSL/TLS settings, start with **Flexible** (Cloudflare terminates HTTPS for visitors; the Cloudflare-to-origin leg stays plain HTTP, which is fine since that's this server's current state and requires zero origin changes). The page is still a secure context from the browser's point of view either way, which is what the GPS feature needs.
+4. Turn on **Always Use HTTPS** (redirects any `http://` visitor to `https://`).
+5. Later, if you want the Cloudflare-to-origin leg encrypted too: switch SSL/TLS mode to **Full**, and install a free Cloudflare Origin CA certificate on this nginx (a bit more setup, not required to fix the GPS/HTTPS issue above).
+
+## Making the request form actually notify you (legacy Formspree)
+
+Formspree has been replaced by the Twilio SMS API above. If you prefer email instead, you can point `REQUEST_API_URL` in `lib/config.ts` back to a Formspree endpoint and adjust the payload in `components/request-form.tsx`.
 
 ## Deploying to GitHub Pages
 
@@ -55,23 +89,46 @@ The workflow builds the site and deploys the `out/` folder automatically. It set
 
 **Deploying somewhere else instead (Vercel, Netlify, your own server)?** This still works -- static export is a subset of what those platforms support. You can also delete `output: "export"` from `next.config.ts` if you'd rather run Next.js as a full server (which would let you bring back a real API route instead of Formspree, if you want).
 
+## SEO / AEO (search + AI answer engines)
+
+- **Structured data (JSON-LD)** -- `lib/schema.ts` builds a `LocalBusiness`/`AutomotiveBusiness` entity (name, phone, email, service-area cities, hours, and the full service catalog) injected site-wide in `app/layout.tsx`; `FAQPage` schema in `components/faq.tsx`; `BreadcrumbList` on `/request`. Deliberately excludes a street address (this is a mobile service-area business, not a storefront), reviews/ratings, and pricing, since none of that is real data -- fabricating any of it would be misleading structured data, which search engines actively penalize.
+- **FAQ section** (`lib/faq.ts`, `components/faq.tsx`) -- every answer restates a claim already made elsewhere on the page (response time, service list, licensing, pricing policy), so the structured data never asserts something the page itself doesn't back up. This is also the single highest-leverage block for AI answer engines (ChatGPT, Perplexity, Google AI Overviews) to quote directly.
+- **`app/sitemap.ts`** / **`app/robots.ts`** -- generated at build time (works fine under static export). Robots rules explicitly allow known AI crawlers (GPTBot, ClaudeBot, PerplexityBot, Google-Extended, etc.) in addition to the default `*` allow, so this is future-proof if any of them ever ships a stricter default.
+- **`public/llms.txt`** -- a plain-text summary of the business/services/contact info for AI crawlers, following the emerging (unofficial, not universally adopted) `llms.txt` convention.
+- **`app/opengraph-image.tsx`** -- a branded 1200x630 social preview image generated at build time (`next/og`), so links shared on social/chat/AI platforms show something other than a blank card.
+- **Fonts** via `next/font/google` (`app/layout.tsx`) -- self-hosted at build time instead of a runtime request to `fonts.googleapis.com`, which removes a render-blocking third-party round trip.
+- **Canonical URLs** set per-page via `alternates.canonical`.
+
+None of this guarantees rankings -- that also depends on backlinks, Google Business Profile signals, and reviews, all of which live outside this repo. See the wrap-up notes for what to do about those.
+
 ## Project structure
 
 ```
 app/
-  layout.tsx        Root layout: fonts, theme provider, header/footer/mobile call bar
-  page.tsx           Homepage (assembles the section components below)
-  globals.css        Full design system -- raw color palette + light/dark semantic tokens
+  layout.tsx          Root layout: fonts, theme provider, JSON-LD, header/footer/mobile call bar
+  page.tsx            Homepage (assembles the section components below)
+  globals.css         Full design system -- raw color palette + light/dark semantic tokens
   request/page.tsx    "Request Service" page shell
+  sitemap.ts          Generates sitemap.xml at build time
+  robots.ts           Generates robots.txt at build time
+  opengraph-image.tsx Branded social-share image, generated at build time
 components/
   header.tsx, footer.tsx, hero.tsx, services.tsx, how-it-works.tsx,
-  service-area.tsx, why-us.tsx, contact-section.tsx, mobile-call-bar.tsx
+  service-area.tsx, why-us.tsx, faq.tsx, contact-section.tsx, mobile-call-bar.tsx
   request-form.tsx    The 3-step request flow (services -> location -> contact)
   theme-provider.tsx, theme-toggle.tsx   Light/dark theme (next-themes)
   icons.tsx           Every icon used on the site, as small React components
 lib/
-  services.ts         Shared data: the 6 services, service cities, business info
-  config.ts           The Formspree endpoint
+  services.ts         Shared data: the 8 services, service cities, business info
+  config.ts           Request API endpoint URL
+  location.ts         Google Maps GPS formatting helpers
+  schema.ts           JSON-LD builders (LocalBusiness, FAQPage, BreadcrumbList)
+  faq.ts              FAQ question/answer content
+api/
+  index.js            Twilio SMS API (dispatcher notifications)
+  Dockerfile          API container image
+public/
+  llms.txt            Plain-text site summary for AI crawlers
 ```
 
 ## How the theme system works

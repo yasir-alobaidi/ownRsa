@@ -243,11 +243,34 @@ export function WinchIcon(props: IconProps) {
   );
 }
 
+export function TirePatchIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="12" cy="12" r="8" />
+      <circle cx="12" cy="12" r="3" />
+      <path d="M8 8l8 8" />
+    </svg>
+  );
+}
+
+export function WheelLockIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="12" cy="12" r="7" />
+      <circle cx="12" cy="12" r="2.5" />
+      <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+      <rect x="10" y="10" width="4" height="5" rx="1" />
+    </svg>
+  );
+}
+
 export const SERVICE_ICONS = {
   towing: TowingIcon,
-  "jump-start": BatteryIcon,
-  "flat-tire": TireIcon,
-  lockout: LockIcon,
+  "battery-jump": BatteryIcon,
+  "tire-change": TireIcon,
+  "flat-tire-fix": TirePatchIcon,
   "fuel-delivery": FuelIcon,
+  "wheel-lock": WheelLockIcon,
+  lockout: LockIcon,
   winching: WinchIcon,
 } as const;
