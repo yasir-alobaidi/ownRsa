@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BUSINESS, CITIES, SERVICES, type ServiceId } from "@/lib/services";
 import { breadcrumbSchema, serviceSchema } from "@/lib/schema";
-import { SERVICE_ICONS, PhoneIcon, ChevronRightIcon } from "@/components/icons";
+import { SERVICE_ICONS, PhoneIcon } from "@/components/icons";
 
 // Longer, page-specific copy -- distinct from the one-line descriptions used
 // on the homepage cards/checkboxes, so this page has real unique content
@@ -89,10 +89,10 @@ export default async function ServiceDetailPage({ params }: Props) {
               <PhoneIcon />
               Call Now — {BUSINESS.phoneDisplay}
             </a>
-            <Link href={`/request/?service=${service.id}`} className="btn btn-outline btn-lg">
+            <button type="button" className="btn btn-outline btn-lg" disabled>
               Request This Service
-              <ChevronRightIcon />
-            </Link>
+              <span className="badge-soon">Coming Soon</span>
+            </button>
           </div>
         </div>
       </section>

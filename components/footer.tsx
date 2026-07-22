@@ -34,8 +34,8 @@ export function Footer() {
               <li>
                 <Link href="/#service-area">Service Area</Link>
               </li>
-              <li>
-                <Link href="/request">Request Service</Link>
+              <li className="footer-coming-soon">
+                Request Service <span className="badge-soon">Coming Soon</span>
               </li>
             </ul>
           </div>

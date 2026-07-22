@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { BUSINESS } from "@/lib/services";
 import { PhoneIcon } from "./icons";
 
@@ -20,9 +19,10 @@ export function Hero() {
             <PhoneIcon />
             Call Now — {BUSINESS.phoneDisplay}
           </a>
-          <Link href="/request" className="btn btn-outline btn-lg">
+          <button type="button" className="btn btn-outline btn-lg" disabled>
             Request Service Online
-          </Link>
+            <span className="badge-soon">Coming Soon</span>
+          </button>
         </div>
         <ul className="hero-badges">
           <li>Average 30-Minute Arrival</li>
