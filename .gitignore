@@ -10,8 +10,10 @@ out/
 .env.local
 .env.*.local
 
-# TLS certs/keys for production (Cloudflare Origin CA) -- host-only, never committed
+# TLS certs/keys for production (Let's Encrypt via certbot) -- host-only, never committed
 certs/
+certbot-webroot/
+letsencrypt/
 
 # misc
 .DS_Store

@@ -63,17 +63,17 @@ Create `.env.local` with `NEXT_PUBLIC_API_URL=http://localhost:3001/api/request`
 
 ## Going live with HTTPS (Cloudflare, Full (strict))
 
-This sits behind Cloudflare, which is both the simplest way to get free HTTPS here and gives a global CDN cache for the static assets as a side effect. Nginx is already configured to trust Cloudflare's real-IP headers (see the `set_real_ip_from` block in `nginx.conf`) and to serve TLS on port 443 using a Cloudflare Origin CA certificate.
+This sits behind Cloudflare, which is both the simplest way to get free HTTPS here and gives a global CDN cache for the static assets as a side effect. Nginx is already configured to trust Cloudflare's real-IP headers (see the `set_real_ip_from` block in `nginx.conf`) and to serve TLS on port 443 using a **Let's Encrypt certificate**, issued and renewed via `certbot` in Docker -- no Cloudflare account access needed to obtain it, since it's a publicly-trusted cert rather than Cloudflare's own Origin CA.
 
-1. Add the site to Cloudflare and point `texasroadsideassist.com`'s nameservers at Cloudflare (done at your domain registrar).
-2. Add a DNS **A record** for the domain pointing at this server's public IP, proxy toggle **on** (orange cloud).
-3. Generate the origin certificate: Cloudflare dashboard -> **SSL/TLS -> Origin Server -> Create Certificate**. Keep the defaults (Cloudflare generates the private key, covers both the apex and `*.texasroadsideassist.com`, 15-year validity). Cloudflare shows the **Origin Certificate** and **Private Key** exactly once -- copy both.
-4. On the server, put them at `~/ownRsa/certs/cloudflare-origin.pem` and `~/ownRsa/certs/cloudflare-origin.key` (this directory is gitignored and never built into the Docker image -- see the `volumes:` mount in `docker-compose.prod.yml`).
-5. Deploy/restart: `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build`.
-6. In Cloudflare's SSL/TLS settings, set the mode to **Full (strict)** -- this validates the origin cert from step 3, so it must be in place first or Cloudflare will show connection errors.
-7. Turn on **Always Use HTTPS** (SSL/TLS -> Edge Certificates).
+1. Add the site to Cloudflare and point the domain's nameservers at Cloudflare (done at your domain registrar).
+2. Add a DNS **A record** for the domain (and `www`) pointing at this server's public IP, proxy toggle **on** (orange cloud).
+3. `./scripts/renew-cert.sh` -- issues the certificate the first time (via an HTTP-01 challenge nginx serves at `/.well-known/acme-challenge/`, which is why DNS must already point here first), copies it to `certs/` for nginx to read, and reloads nginx. It's the same script a cron job re-runs going forward (see below); running it again is always safe, it's a no-op unless renewal is actually due.
+4. In Cloudflare's SSL/TLS settings, set the mode to **Full (strict)** -- this validates the cert from step 3, so it must already be installed or Cloudflare will show connection errors.
+5. Turn on **Always Use HTTPS** (SSL/TLS -> Edge Certificates).
 
-Since Cloudflare's Origin CA cert is only trusted by Cloudflare itself (not a public browser), don't expect a padlock when hitting this server's IP directly over HTTPS -- that's expected and fine, since real visitors always go through Cloudflare's edge, which does the browser-facing certificate.
+**Renewal**: Let's Encrypt certs expire every 90 days. A cron job (`0 3,15 * * * /home/ubuntu/ownRsa/scripts/renew-cert.sh`) checks twice daily and only actually renews within ~30 days of expiry, logging to `renew-cert.log`. This is genuine ongoing upkeep this server now owns -- if you'd rather not think about renewal at all, Cloudflare's own Origin CA certificate (15-year validity, generated free from the Cloudflare dashboard under SSL/TLS -> Origin Server) is a zero-maintenance alternative; it just requires Cloudflare dashboard access to generate, which is the one thing this repo's automation can't do for you.
+
+Since this server's own certificate is what Cloudflare validates in Full (strict) -- not what visitors see -- don't expect this exact cert when inspecting `https://texasroadsideassist.com` from a browser; that shows Cloudflare's own edge certificate. The origin cert only matters for the Cloudflare-to-origin leg.
 
 ## Making the request form actually notify you (legacy Formspree)
 

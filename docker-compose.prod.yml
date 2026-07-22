@@ -9,7 +9,10 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      # Cloudflare Origin CA cert -- lives only on this host, outside git and
-      # outside the image (see README, "Full (strict) SSL"). Read-only: the
-      # container has no business writing to it.
+      # Let's Encrypt cert (copied here from certbot's own state dir by
+      # scripts/renew-cert.sh) -- lives only on this host, outside git and
+      # outside the image. Read-only: the container has no business writing
+      # to it.
       - ${CERTS_DIR:-./certs}:/etc/nginx/certs:ro
+      # Where certbot writes HTTP-01 challenge files for nginx to serve.
+      - ${CERTBOT_WEBROOT:-./certbot-webroot}:/var/www/certbot:ro
