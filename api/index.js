@@ -15,16 +15,26 @@ const {
   MAX_REQUESTS_PER_DAY,
 } = process.env;
 
+// Checked against Twilio's actual Account SID format (AC + 32 hex chars)
+// rather than matching our own placeholder text -- this correctly treats
+// ANY invalid/unconfigured value as "not configured," not just the literal
+// placeholder string that happens to be in .env.example today.
 const twilioConfigured =
   TWILIO_ACCOUNT_SID &&
   TWILIO_AUTH_TOKEN &&
   TWILIO_FROM_NUMBER &&
   DISPATCHER_PHONE &&
-  !TWILIO_ACCOUNT_SID.startsWith("YOUR_");
+  /^AC[a-f0-9]{32}$/i.test(TWILIO_ACCOUNT_SID);
 
-const twilioClient = twilioConfigured
-  ? twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-  : null;
+let twilioClient = null;
+if (twilioConfigured) {
+  try {
+    twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+  } catch (err) {
+    // A bad credential should degrade to demo mode, not crash-loop the API.
+    console.error("[api] Twilio client failed to initialize, falling back to demo mode:", err.message);
+  }
+}
 
 // nginx is the only thing that talks to this container (it's `expose`d, not
 // `ports`-published, in docker-compose.yml), so there's exactly one hop
@@ -272,5 +282,5 @@ app.post("/api/request", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`[api] listening on :${PORT} (twilio: ${twilioConfigured ? "on" : "demo"})`);
+  console.log(`[api] listening on :${PORT} (twilio: ${twilioClient ? "on" : "demo"})`);
 });

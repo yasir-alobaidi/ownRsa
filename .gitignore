@@ -10,6 +10,9 @@ out/
 .env.local
 .env.*.local
 
+# TLS certs/keys for production (Cloudflare Origin CA) -- host-only, never committed
+certs/
+
 # misc
 .DS_Store
 *.log

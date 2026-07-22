@@ -1,0 +1,15 @@
+services:
+  web:
+    # Real traffic (and Cloudflare, once DNS points here) hits port 80/443
+    # directly, unlike the local-dev default of 9000. `!override` (not just
+    # restating the key) is required here -- Compose merges "ports" arrays
+    # across -f files by concatenation, not replacement, so without it this
+    # would additionally publish 9000 on the production host too.
+    ports: !override
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Cloudflare Origin CA cert -- lives only on this host, outside git and
+      # outside the image (see README, "Full (strict) SSL"). Read-only: the
+      # container has no business writing to it.
+      - ${CERTS_DIR:-./certs}:/etc/nginx/certs:ro
