@@ -42,7 +42,7 @@ export function ContactSection() {
         </div>
 
         <div className="request-panel">
-          <h3>Not urgent? Request online.</h3>
+          <h3>Prefer not to call? Request online.</h3>
           <p>
             Tell us what you need and where you are, and a dispatcher will call
             you back to confirm the details — usually within minutes.
