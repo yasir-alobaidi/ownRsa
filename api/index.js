@@ -70,13 +70,37 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, twilioConfigured: Boolean(twilioClient) });
 });
 
-function parseGpsCoords(location) {
-  const match = String(location || "")
-    .trim()
-    .match(/^(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)$/);
-  if (!match) return null;
+// Long-form Google Maps URLs embed the coordinates directly in the URL text
+// in one of a few different spots depending on how the link was generated
+// (viewport marker, query param, or the internal place-pin encoding).
+// Shortened maps.app.goo.gl links resolve via a redirect we don't follow
+// server-side either, so those still need to be typed out. Mirrors the same
+// patterns in lib/location.ts -- this API has no shared code with the
+// frontend, so it keeps its own copy.
+const GOOGLE_MAPS_URL_PATTERNS = [
+  /[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/,
+  /[?&]ll=(-?\d+\.\d+),(-?\d+\.\d+)/,
+  /@(-?\d+\.\d+),(-?\d+\.\d+)/,
+  /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/,
+];
 
-  return normalizeGpsCoords(match[1], match[2]);
+function parseGpsCoords(location) {
+  const trimmed = String(location || "").trim();
+  const match = trimmed.match(/^(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)$/);
+  if (match) {
+    const coords = normalizeGpsCoords(match[1], match[2]);
+    if (coords) return coords;
+  }
+
+  for (const pattern of GOOGLE_MAPS_URL_PATTERNS) {
+    const urlMatch = trimmed.match(pattern);
+    if (urlMatch) {
+      const coords = normalizeGpsCoords(urlMatch[1], urlMatch[2]);
+      if (coords) return coords;
+    }
+  }
+
+  return null;
 }
 
 function normalizeGpsCoords(latInput, lngInput) {

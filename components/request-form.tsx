@@ -352,7 +352,8 @@ export function RequestForm() {
         <div className="request-card">
           <h2>Where are you?</h2>
           <p className="step-sub">
-            Street address, cross streets, mile marker, or GPS — whatever gets our driver to you fastest.
+            Street address, cross streets, mile marker, GPS, or a Google Maps
+            link — whatever gets our driver to you fastest.
           </p>
           <div className="form-group">
             <label htmlFor="rf-location">Location</label>
