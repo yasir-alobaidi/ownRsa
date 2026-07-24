@@ -44,7 +44,7 @@ export function ServiceArea() {
               DALLAS
             </text>
             <text x="150" y="20" textAnchor="middle" fontFamily="var(--font-body)" fontSize="12" fill="var(--text-muted)">
-              DFW METROPLEX
+              DALLAS METROPLEX
             </text>
           </svg>
         </div>

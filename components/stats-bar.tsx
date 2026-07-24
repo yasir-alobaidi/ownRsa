@@ -4,7 +4,7 @@ const STATS = [
   { num: "<30 Min", label: "Average Response Time" },
   { num: "24/7/365", label: "Always Available" },
   { num: "100%", label: "Licensed & Insured" },
-  { num: `${CITIES.length} Cities`, label: "Across the DFW Metroplex" },
+  { num: `${CITIES.length} Cities`, label: "Across the Dallas Metroplex" },
 ];
 
 export function StatsBar() {
