@@ -13,7 +13,13 @@ const {
   ALLOWED_ORIGINS,
   RATE_LIMIT_MAX_PER_IP,
   MAX_REQUESTS_PER_DAY,
+  BUSINESS_PHONE_DISPLAY,
 } = process.env;
+
+// The public "Call Now" number shown on the site -- not a secret, so a
+// sensible default ships here rather than forcing every environment to set
+// it just to get the confirmation text's callback number right.
+const businessPhoneDisplay = BUSINESS_PHONE_DISPLAY || "(945) 412-1215";
 
 // Checked against Twilio's actual Account SID format (AC + 32 hex chars)
 // rather than matching our own placeholder text -- this correctly treats
@@ -134,11 +140,28 @@ function buildSmsBody(data) {
   return lines.join("\n");
 }
 
+function buildCustomerConfirmationSms(data) {
+  return [
+    `Texas Roadside Assist: We got your request (${data.referenceId}).`,
+    `A dispatcher will call you back shortly to confirm details and get you help.`,
+    "",
+    `This is a one-way text -- we don't monitor replies. For anything urgent, call us at ${businessPhoneDisplay}.`,
+  ].join("\n");
+}
+
 function isUsPhone(phone) {
   const digits = String(phone || "").replace(/\D/g, "");
   if (digits.length === 10) return true;
   if (digits.length === 11 && digits.startsWith("1")) return true;
   return false;
+}
+
+// Twilio expects E.164 ("to" numbers with no formatting), while cleanPhone
+// keeps whatever format the customer typed for display in the dispatcher SMS.
+function toE164UsPhone(phone) {
+  const digits = String(phone || "").replace(/\D/g, "");
+  const tenDigits = digits.length === 11 ? digits.slice(1) : digits;
+  return `+1${tenDigits}`;
 }
 
 // --- Abuse protection ----------------------------------------------------
@@ -259,10 +282,12 @@ app.post("/api/request", async (req, res) => {
     locationNotes: cleanString(locationNotes) || "(none)",
     mapsUrl,
   });
+  const customerSmsBody = buildCustomerConfirmationSms({ referenceId: ref });
 
   if (!twilioClient) {
     console.warn("[api] Twilio not configured — request logged but SMS not sent:");
     console.warn(smsBody);
+    console.warn(customerSmsBody);
     return res.json({ ok: true, referenceId: ref, demo: true });
   }
 
@@ -272,13 +297,26 @@ app.post("/api/request", async (req, res) => {
       from: TWILIO_FROM_NUMBER,
       to: DISPATCHER_PHONE,
     });
-    return res.json({ ok: true, referenceId: ref });
   } catch (err) {
     console.error("[api] Twilio SMS failed:", err);
     return res.status(502).json({
       error: "Could not notify dispatch. Please call us directly.",
     });
   }
+
+  // Best-effort: the dispatcher is already notified, so the request itself
+  // succeeded even if this confirmation text doesn't make it to the customer.
+  try {
+    await twilioClient.messages.create({
+      body: customerSmsBody,
+      from: TWILIO_FROM_NUMBER,
+      to: toE164UsPhone(cleanPhone),
+    });
+  } catch (err) {
+    console.error("[api] Customer confirmation SMS failed:", err);
+  }
+
+  return res.json({ ok: true, referenceId: ref });
 });
 
 app.listen(PORT, () => {

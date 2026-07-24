@@ -227,6 +227,12 @@ export function RequestForm() {
           call you at <strong>{data.phone}</strong> shortly to confirm the details
           and get you help.
         </p>
+        <p>
+          You should also get a confirmation text at that number within a minute or
+          two. If you don't, your request may not have gone through — please call us
+          at <a href={`tel:${BUSINESS.phoneTel}`}>{BUSINESS.phoneDisplay}</a> or try
+          submitting again.
+        </p>
         <p className="ref">Reference: {referenceId}</p>
       </div>
     );
