@@ -34,7 +34,7 @@ export default function TermsPage() {
         <p>
           Welcome to {BUSINESS.name} (&quot;we,&quot; &quot;us,&quot; &quot;our&quot;). These Terms of
           Service (&quot;Terms&quot;) govern your use of our website and the roadside assistance
-          services we arrange or provide across the Dallas-Fort Worth Metroplex. By using our
+          services we arrange or provide across the Dallas Metroplex. By using our
           website, calling us, or requesting service, you agree to these Terms.
         </p>
         <p>
@@ -49,7 +49,7 @@ export default function TermsPage() {
         <p>
           {BUSINESS.name} arranges roadside assistance including towing, battery change or
           jump-start, tire change, flat tire repair, fuel delivery, wheel lock removal, lockout
-          service, and winching &amp; recovery, across Dallas, Fort Worth, and the surrounding
+          service, and winching &amp; recovery, across Dallas and the surrounding
           Metroplex cities listed on our Service Area section. We aim to be available 24 hours a
           day, 7 days a week.
         </p>

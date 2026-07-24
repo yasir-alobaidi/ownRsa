@@ -10,7 +10,7 @@ import { SERVICE_ICONS, PhoneIcon, ChevronRightIcon } from "@/components/icons";
 // rather than just repeating the summary at length.
 const SERVICE_DETAILS: Record<ServiceId, string> = {
   towing:
-    "When your car won't start, isn't safe to drive, or just needs to get somewhere specific -- a dealership, a trusted shop, or home -- we provide light and medium-duty towing anywhere in the Dallas-Fort Worth Metroplex. Tell us where you are and where the vehicle needs to go, and a local driver will get it there safely.",
+    "When your car won't start, isn't safe to drive, or just needs to get somewhere specific -- a dealership, a trusted shop, or home -- we provide light and medium-duty towing anywhere in the Dallas Metroplex. Tell us where you are and where the vehicle needs to go, and a local driver will get it there safely.",
   "battery-jump":
     "A dead battery is one of the most common roadside calls we get. In most cases a jump-start gets your engine running again in minutes. If the battery itself is the problem, we carry replacements and can swap it on the spot, right where you're parked.",
   "tire-change":
@@ -40,8 +40,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const service = SERVICES.find((s) => s.id === slug);
   if (!service) return {};
 
-  const title = `${service.name} in Dallas-Fort Worth`;
-  const description = `${service.description} Available 24/7 across the Dallas-Fort Worth Metroplex -- call now or request service online.`;
+  const title = `${service.name} in Dallas`;
+  const description = `${service.description} Available 24/7 across the Dallas Metroplex -- call now or request service online.`;
 
   return {
     title,
@@ -81,7 +81,7 @@ export default async function ServiceDetailPage({ params }: Props) {
             <Icon />
           </div>
           <h1>
-            {service.name} in <span className="accent">Dallas-Fort Worth</span>
+            {service.name} in <span className="accent">Dallas</span>
           </h1>
           <p className="service-detail-lead">{SERVICE_DETAILS[service.id]}</p>
           <div className="hero-ctas">

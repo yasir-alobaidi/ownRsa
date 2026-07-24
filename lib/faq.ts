@@ -11,7 +11,7 @@ export const FAQS: FaqItem[] = [
   {
     question: "What areas does Texas Roadside Assist cover?",
     answer:
-      "We're based in Dallas and serve the greater Dallas-Fort Worth Metroplex, including Fort Worth, Arlington, Plano, Irving, Garland, Mesquite, Grand Prairie, Richardson, and Carrollton. Just outside these cities? Call us -- there's a good chance we cover it too.",
+      "We're based in Dallas and serve the greater Dallas Metroplex, including Arlington, Plano, Irving, Garland, Mesquite, Grand Prairie, Richardson, and Carrollton. Just outside these cities? Call us -- there's a good chance we cover it too.",
   },
   {
     question: "How fast can you get to me?",

@@ -5,7 +5,7 @@ import { ImageResponse } from "next/og";
 export const dynamic = "force-static";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt = "Texas Roadside Assist — 24/7 Roadside Assistance in Dallas-Fort Worth";
+export const alt = "Texas Roadside Assist — 24/7 Roadside Assistance in Dallas";
 
 export default function OpengraphImage() {
   return new ImageResponse(
@@ -46,7 +46,7 @@ export default function OpengraphImage() {
           </div>
         </div>
         <div style={{ display: "flex", fontSize: 56, fontWeight: 700, lineHeight: 1.15, maxWidth: 950 }}>
-          24/7 Roadside Assistance in Dallas-Fort Worth
+          24/7 Roadside Assistance in Dallas
         </div>
         <div style={{ display: "flex", fontSize: 27, marginTop: 30, color: "#B7BDCC" }}>
           Towing · Battery · Tires · Lockouts · Fuel Delivery · Winching

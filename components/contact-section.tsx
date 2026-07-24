@@ -37,7 +37,7 @@ export function ContactSection() {
               <span className="ci-icon">
                 <PinIcon />
               </span>
-              Serving the Dallas–Fort Worth Metroplex
+              Serving the Dallas Metroplex
             </li>
           </ul>
         </div>

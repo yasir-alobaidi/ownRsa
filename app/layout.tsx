@@ -31,13 +31,13 @@ export const metadata: Metadata = {
     template: "%s | Texas Roadside Assist",
   },
   description:
-    "Fast, friendly 24/7 roadside assistance across the Dallas-Fort Worth Metroplex — towing, battery jump-starts, tire changes, flat tire repair, fuel delivery, wheel lock removal, lockouts, and recovery.",
+    "Fast, friendly 24/7 roadside assistance across the Dallas Metroplex — towing, battery jump-starts, tire changes, flat tire repair, fuel delivery, wheel lock removal, lockouts, and recovery.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
     title: "Texas Roadside Assist | 24/7 Roadside Assistance in Dallas, TX",
-    description: "Fast, friendly roadside help across the Dallas-Fort Worth Metroplex, available 24/7.",
+    description: "Fast, friendly roadside help across the Dallas Metroplex, available 24/7.",
     type: "website",
     url: SITE_URL,
     siteName: "Texas Roadside Assist",
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Texas Roadside Assist | 24/7 Roadside Assistance in Dallas, TX",
-    description: "Fast, friendly roadside help across the Dallas-Fort Worth Metroplex, available 24/7.",
+    description: "Fast, friendly roadside help across the Dallas Metroplex, available 24/7.",
   },
   icons: {
     icon:

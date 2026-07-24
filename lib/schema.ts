@@ -17,7 +17,7 @@ export const organizationSchema = {
   telephone: BUSINESS.phoneTel,
   email: BUSINESS.email,
   description:
-    "24/7 roadside assistance across the Dallas-Fort Worth Metroplex: towing, battery jump-starts, tire changes, flat tire repair, fuel delivery, wheel lock removal, lockouts, and winching.",
+    "24/7 roadside assistance across the Dallas Metroplex: towing, battery jump-starts, tire changes, flat tire repair, fuel delivery, wheel lock removal, lockouts, and winching.",
   areaServed: CITIES.map((city) => ({ "@type": "City", name: city })),
   openingHoursSpecification: {
     "@type": "OpeningHoursSpecification",

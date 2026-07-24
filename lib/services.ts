@@ -59,7 +59,6 @@ export const SERVICES: ServiceDef[] = [
 
 export const CITIES = [
   "Dallas",
-  "Fort Worth",
   "Arlington",
   "Irving",
   "Grand Prairie",
