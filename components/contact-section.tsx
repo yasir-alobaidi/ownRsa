@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { BUSINESS, SERVICES } from "@/lib/services";
-import { PhoneIcon, EnvelopeIcon, ClockIcon, PinIcon } from "./icons";
+import { PhoneIcon, EnvelopeIcon, ClockIcon, PinIcon, ChevronRightIcon } from "./icons";
 
 export function ContactSection() {
   return (
@@ -52,10 +53,10 @@ export function ContactSection() {
               <li key={s.id}>{s.name}</li>
             ))}
           </ul>
-          <button type="button" className="btn btn-primary btn-block" disabled>
+          <Link href="/request" className="btn btn-primary btn-block">
             Start a Request
-            <span className="badge-soon">Coming Soon</span>
-          </button>
+            <ChevronRightIcon />
+          </Link>
         </div>
       </div>
     </section>
