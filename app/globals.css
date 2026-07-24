@@ -444,6 +444,8 @@ section.alt{background:var(--bg-canvas-alt);}
 .geo-btn:disabled{opacity:0.6;cursor:not-allowed;text-decoration:none;}
 .geo-hint{font-size:0.82rem;color:var(--text-secondary);margin-top:0.55rem;line-height:1.45;}
 .geo-hint a{color:var(--accent-text);font-weight:600;}
+.geo-hint-warn{color:var(--caution-400);font-weight:600;}
+[data-theme="light"] .geo-hint-warn{color:#946200;}
 .geo-coords{font-family:var(--font-mono, ui-monospace, monospace);font-size:0.78rem;background:var(--bg-surface-2);padding:0.1rem 0.35rem;border-radius:4px;word-break:break-all;}
 .hp-field{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none;}
 

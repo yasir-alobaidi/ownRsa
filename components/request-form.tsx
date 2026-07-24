@@ -26,6 +26,7 @@ interface FormState {
   location: string;
   gpsLat: number | null;
   gpsLng: number | null;
+  gpsAccuracy: number | null;
   locationNotes: string;
   name: string;
   phone: string;
@@ -38,6 +39,7 @@ const INITIAL_STATE: FormState = {
   location: "",
   gpsLat: null,
   gpsLng: null,
+  gpsAccuracy: null,
   locationNotes: "",
   name: "",
   phone: "",
@@ -145,6 +147,7 @@ export function RequestForm() {
       location: data.location.trim(),
       gpsLat: data.gpsLat,
       gpsLng: data.gpsLng,
+      gpsAccuracy: data.gpsAccuracy,
       locationNotes: data.locationNotes.trim() || "(none)",
       mapsUrl,
       website: honeypotRef.current?.value || "",
@@ -186,23 +189,62 @@ export function RequestForm() {
     setLocating(true);
     setGeoError(null);
 
-    navigator.geolocation.getCurrentPosition(
+    // A single getCurrentPosition call often returns whatever fix is
+    // fastest -- frequently a coarse WiFi/cell-tower estimate -- rather than
+    // the most accurate one. GPS accuracy improves over the first several
+    // seconds as more satellites lock in, so instead we sample readings for
+    // a few seconds and keep whichever has the smallest accuracy radius,
+    // stopping early once it's already good enough.
+    const ACCURACY_GOAL_METERS = 25;
+    const MAX_WAIT_MS = 12000;
+
+    let best: GeolocationPosition | null = null;
+    let settled = false;
+
+    const watchId = navigator.geolocation.watchPosition(
       (pos) => {
-        const { latitude, longitude } = pos.coords;
-        setData((prev) => ({
-          ...prev,
-          location: formatGpsForMaps(latitude, longitude),
-          gpsLat: latitude,
-          gpsLng: longitude,
-        }));
-        setLocating(false);
+        if (!best || pos.coords.accuracy < best.coords.accuracy) {
+          best = pos;
+        }
+        if (pos.coords.accuracy <= ACCURACY_GOAL_METERS) {
+          finish();
+        }
       },
       () => {
+        if (!settled) {
+          settled = true;
+          navigator.geolocation.clearWatch(watchId);
+          setGeoError("Could not get your location. Type your address or cross streets instead.");
+          setLocating(false);
+        }
+      },
+      { enableHighAccuracy: true, timeout: MAX_WAIT_MS, maximumAge: 0 }
+    );
+
+    const timeoutId = setTimeout(finish, MAX_WAIT_MS);
+
+    function finish() {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeoutId);
+      navigator.geolocation.clearWatch(watchId);
+
+      if (!best) {
         setGeoError("Could not get your location. Type your address or cross streets instead.");
         setLocating(false);
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-    );
+        return;
+      }
+
+      const { latitude, longitude, accuracy } = best.coords;
+      setData((prev) => ({
+        ...prev,
+        location: formatGpsForMaps(latitude, longitude),
+        gpsLat: latitude,
+        gpsLng: longitude,
+        gpsAccuracy: accuracy,
+      }));
+      setLocating(false);
+    }
   }
 
   function handleLocationChange(value: string) {
@@ -212,6 +254,7 @@ export function RequestForm() {
       location: value,
       gpsLat: parsed?.lat ?? null,
       gpsLng: parsed?.lng ?? null,
+      gpsAccuracy: null,
     }));
   }
 
@@ -339,6 +382,15 @@ export function RequestForm() {
                   open directions
                 </a>
                 .
+              </p>
+            )}
+            {data.gpsAccuracy != null && (
+              <p className={data.gpsAccuracy > 100 ? "geo-hint geo-hint-warn" : "geo-hint"}>
+                {data.gpsAccuracy > 100
+                  ? `This location is only accurate to about ±${Math.round(
+                      data.gpsAccuracy
+                    )}m — for a faster response, add a nearby landmark or cross street below.`
+                  : `Location accuracy: ±${Math.round(data.gpsAccuracy)}m.`}
               </p>
             )}
           </div>

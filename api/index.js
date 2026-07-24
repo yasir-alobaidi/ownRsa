@@ -125,6 +125,11 @@ function buildSmsBody(data) {
     lines.push(`GPS: ${data.gps.display}`);
   }
 
+  if (data.gps?.accuracy != null) {
+    const precise = data.gps.accuracy <= 100;
+    lines.push(`GPS accuracy: ±${data.gps.accuracy}m${precise ? "" : " (low confidence -- confirm location with customer)"}`);
+  }
+
   if (data.mapsUrl) {
     lines.push(`Google Maps: ${data.mapsUrl}`);
   }
@@ -226,6 +231,7 @@ app.post("/api/request", async (req, res) => {
     location,
     gpsLat,
     gpsLng,
+    gpsAccuracy,
     locationNotes,
     referenceId,
     website, // honeypot -- real users never see or fill this field
@@ -267,6 +273,11 @@ app.post("/api/request", async (req, res) => {
     });
   }
   const submittedGps = normalizeGpsCoords(gpsLat, gpsLng);
+  // Accuracy only means anything for a device-reported fix, not coordinates
+  // the customer typed in by hand.
+  if (submittedGps && Number.isFinite(Number(gpsAccuracy))) {
+    submittedGps.accuracy = Math.round(Number(gpsAccuracy));
+  }
   const typedGps = parseGpsCoords(cleanLocationInput);
   const gps = submittedGps || typedGps;
   const cleanLocation = gps && typedGps ? gps.display : cleanLocationInput;
