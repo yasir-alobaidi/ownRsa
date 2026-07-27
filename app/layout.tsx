@@ -27,8 +27,8 @@ const barlowCondensed = Barlow_Condensed({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Texas Roadside Assist | 24/7 Roadside Assistance in Dallas, TX",
-    template: "%s | Texas Roadside Assist",
+    default: "Texas Roadside Assistance | 24/7 Roadside Assistance in Dallas, TX",
+    template: "%s | Texas Roadside Assistance",
   },
   description:
     "Fast, friendly 24/7 roadside assistance across the Dallas Metroplex — towing, battery jump-starts, tire changes, flat tire repair, fuel delivery, wheel lock removal, lockouts, and recovery.",
@@ -36,15 +36,15 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Texas Roadside Assist | 24/7 Roadside Assistance in Dallas, TX",
+    title: "Texas Roadside Assistance | 24/7 Roadside Assistance in Dallas, TX",
     description: "Fast, friendly roadside help across the Dallas Metroplex, available 24/7.",
     type: "website",
     url: SITE_URL,
-    siteName: "Texas Roadside Assist",
+    siteName: "Texas Roadside Assistance",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Texas Roadside Assist | 24/7 Roadside Assistance in Dallas, TX",
+    title: "Texas Roadside Assistance | 24/7 Roadside Assistance in Dallas, TX",
     description: "Fast, friendly roadside help across the Dallas Metroplex, available 24/7.",
   },
   icons: {

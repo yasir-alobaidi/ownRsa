@@ -171,7 +171,7 @@ function buildSmsBody(data) {
 
 function buildCustomerConfirmationSms(data) {
   return [
-    `Texas Roadside Assist: We got your request (${data.referenceId}).`,
+    `Texas Roadside Assistance: We got your request (${data.referenceId}).`,
     `A dispatcher will call you back shortly to confirm details and get you help.`,
     "",
     `This is a one-way text -- we don't monitor replies. For anything urgent, call us at ${businessPhoneDisplay}.`,

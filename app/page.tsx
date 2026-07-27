@@ -9,9 +9,9 @@ import { Faq } from "@/components/faq";
 import { ContactSection } from "@/components/contact-section";
 
 export const metadata: Metadata = {
-  title: "Texas Roadside Assist | 24/7 Roadside Assistance in Dallas, TX",
+  title: "Texas Roadside Assistance | 24/7 Roadside Assistance in Dallas, TX",
   description:
-    "Texas Roadside Assist provides fast, reliable 24/7 roadside assistance across the Dallas Metroplex — towing, battery service, tire changes, flat tire repair, fuel delivery, wheel lock removal, lockouts, and recovery.",
+    "Texas Roadside Assistance provides fast, reliable 24/7 roadside assistance across the Dallas Metroplex — towing, battery service, tire changes, flat tire repair, fuel delivery, wheel lock removal, lockouts, and recovery.",
   alternates: {
     canonical: "/",
   },

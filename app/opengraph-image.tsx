@@ -5,7 +5,7 @@ import { ImageResponse } from "next/og";
 export const dynamic = "force-static";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt = "Texas Roadside Assist — 24/7 Roadside Assistance in Dallas";
+export const alt = "Texas Roadside Assistance — 24/7 Roadside Assistance in Dallas";
 
 export default function OpengraphImage() {
   return new ImageResponse(
@@ -41,7 +41,7 @@ export default function OpengraphImage() {
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={{ fontSize: 28, fontWeight: 700, letterSpacing: 2 }}>TEXAS</span>
             <span style={{ fontSize: 18, fontWeight: 600, color: "#FF6A2C", letterSpacing: 4 }}>
-              ROADSIDE ASSIST
+              ROADSIDE ASSISTANCE
             </span>
           </div>
         </div>

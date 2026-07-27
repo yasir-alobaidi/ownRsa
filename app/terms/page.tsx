@@ -10,7 +10,7 @@ const LAST_UPDATED = "July 22, 2026";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
-  description: "Terms of Service for Texas Roadside Assist.",
+  description: "Terms of Service for Texas Roadside Assistance.",
   alternates: { canonical: "/terms/" },
 };
 

@@ -10,8 +10,8 @@ set -eu
 
 cd "$(dirname "$0")/.."
 
-DOMAIN=texasroadsideassist.com
-EMAIL=help@texasroadsideassist.com
+DOMAIN=texas-roadside-assistance.com
+EMAIL=help@texas-roadside-assistance.com
 
 mkdir -p letsencrypt certbot-webroot certs
 

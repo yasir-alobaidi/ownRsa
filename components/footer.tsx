@@ -14,7 +14,7 @@ export function Footer() {
               </span>
               <span className="logo-text">
                 <span className="logo-line1">TEXAS</span>
-                <span className="logo-line2">Roadside Assist</span>
+                <span className="logo-line2">Roadside Assistance</span>
               </span>
             </Link>
             <p>
@@ -35,7 +35,7 @@ export function Footer() {
                 <Link href="/#service-area">Service Area</Link>
               </li>
               <li>
-                <Link href="/request">Request Service</Link>
+                <span>Request Service — Coming Soon</span>
               </li>
             </ul>
           </div>

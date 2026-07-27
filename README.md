@@ -1,6 +1,6 @@
-# Texas Roadside Assist
+# Texas Roadside Assistance
 
-A Next.js (App Router + TypeScript) rebuild of the Texas Roadside Assist landing page: light/dark theme, a 24/7 service marketing site, and a multi-step "Request Service" form. Statically exported so it can run on GitHub Pages (or any static host) with no server required.
+A Next.js (App Router + TypeScript) rebuild of the Texas Roadside Assistance landing page: light/dark theme, a 24/7 service marketing site, and a multi-step "Request Service" form. Statically exported so it can run on GitHub Pages (or any static host) with no server required.
 
 ## Getting started locally
 
@@ -21,7 +21,7 @@ This writes fully static HTML/CSS/JS to the `out/` folder. You can open `out/ind
 
 ## Before you launch: things to update
 
-Domain (`texasroadsideassist.com`), phone (`(945) 412-1215`), and email (`help@texasroadsideassist.com`) are all real -- confirmed and set in `lib/services.ts` (`BUSINESS`), and already threaded through `app/layout.tsx` (`metadataBase`), `lib/schema.ts` (`SITE_URL`), the sitemap/robots/OG image, and `public/llms.txt`. The phone number doubles as `DISPATCHER_PHONE` -- the same line receives the SMS for online requests.
+Domain (`texas-roadside-assistance.com`), phone (`(945) 412-1215`), and email (`help@texas-roadside-assistance.com`) are all real -- confirmed and set in `lib/services.ts` (`BUSINESS`), and already threaded through `app/layout.tsx` (`metadataBase`), `lib/schema.ts` (`SITE_URL`), the sitemap/robots/OG image, and `public/llms.txt`. The phone number doubles as `DISPATCHER_PHONE` -- the same line receives the SMS for online requests.
 
 What's still open:
 
@@ -73,7 +73,7 @@ This sits behind Cloudflare, which is both the simplest way to get free HTTPS he
 
 **Renewal**: Let's Encrypt certs expire every 90 days. A cron job (`0 3,15 * * * /home/ubuntu/ownRsa/scripts/renew-cert.sh`) checks twice daily and only actually renews within ~30 days of expiry, logging to `renew-cert.log`. This is genuine ongoing upkeep this server now owns -- if you'd rather not think about renewal at all, Cloudflare's own Origin CA certificate (15-year validity, generated free from the Cloudflare dashboard under SSL/TLS -> Origin Server) is a zero-maintenance alternative; it just requires Cloudflare dashboard access to generate, which is the one thing this repo's automation can't do for you.
 
-Since this server's own certificate is what Cloudflare validates in Full (strict) -- not what visitors see -- don't expect this exact cert when inspecting `https://texasroadsideassist.com` from a browser; that shows Cloudflare's own edge certificate. The origin cert only matters for the Cloudflare-to-origin leg.
+Since this server's own certificate is what Cloudflare validates in Full (strict) -- not what visitors see -- don't expect this exact cert when inspecting `https://texas-roadside-assistance.com` from a browser; that shows Cloudflare's own edge certificate. The origin cert only matters for the Cloudflare-to-origin leg.
 
 ## Making the request form actually notify you (legacy Formspree)
 

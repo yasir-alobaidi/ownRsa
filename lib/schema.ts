@@ -1,6 +1,6 @@
 import { BUSINESS, CITIES, SERVICES, type ServiceDef } from "./services";
 
-export const SITE_URL = "https://texasroadsideassist.com";
+export const SITE_URL = "https://texas-roadside-assistance.com";
 
 // Site-wide business facts, injected once in the root layout. Deliberately
 // omits `address` (this is a mobile service area business with no public

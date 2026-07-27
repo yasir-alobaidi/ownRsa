@@ -33,7 +33,7 @@ export function Header() {
           </span>
           <span className="logo-text">
             <span className="logo-line1">TEXAS</span>
-            <span className="logo-line2">Roadside Assist</span>
+            <span className="logo-line2">Roadside Assistance</span>
           </span>
         </Link>
 

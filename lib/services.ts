@@ -88,10 +88,10 @@ export const CITIES = [
 ];
 
 export const BUSINESS = {
-  name: "Texas Roadside Assist",
+  name: "Texas Roadside Assistance",
   shortName: "TRA",
   phoneDisplay: "(945) 412-1215",
   phoneTel: "+19454121215",
-  email: "help@texasroadsideassist.com",
-  domain: "texasroadsideassist.com",
+  email: "help@texas-roadside-assistance.com",
+  domain: "texas-roadside-assistance.com",
 };

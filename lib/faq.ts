@@ -9,7 +9,7 @@ export interface FaqItem {
 // itself doesn't already back up.
 export const FAQS: FaqItem[] = [
   {
-    question: "What areas does Texas Roadside Assist cover?",
+    question: "What areas does Texas Roadside Assistance cover?",
     answer:
       "We're based in Dallas and serve the greater Dallas Metroplex, including Arlington, Plano, Irving, Garland, Mesquite, Grand Prairie, Richardson, and Carrollton. Just outside these cities? Call us -- there's a good chance we cover it too.",
   },
@@ -38,7 +38,7 @@ export const FAQS: FaqItem[] = [
       "Yes to both. We handle standard lockouts (keys locked inside, no damage to your vehicle) and wheel lock / lug nut lock removal when the key is lost.",
   },
   {
-    question: "Is Texas Roadside Assist licensed and insured?",
+    question: "Is Texas Roadside Assistance licensed and insured?",
     answer: "Yes -- we're fully licensed and insured for towing and roadside operations in the state of Texas.",
   },
   {

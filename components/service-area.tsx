@@ -8,7 +8,7 @@ export function ServiceArea() {
           <p className="eyebrow">Service Area</p>
           <h2>Proudly Serving the Dallas Metroplex</h2>
           <p>
-            Texas Roadside Assist is based right here in Dallas. Wherever you
+            Texas Roadside Assistance is based right here in Dallas. Wherever you
             are in the Metroplex, help isn't far away — and as we grow,
             we're bringing the same fast, local service to more of Texas.
           </p>

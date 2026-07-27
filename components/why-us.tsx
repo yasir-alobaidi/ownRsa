@@ -28,7 +28,7 @@ export function WhyUs() {
     <section className="alt">
       <div className="container">
         <div className="section-head">
-          <p className="eyebrow">Why Texas Roadside Assist</p>
+          <p className="eyebrow">Why Texas Roadside Assistance</p>
           <h2>Help You Can Actually Count On</h2>
         </div>
         <div className="why-grid">

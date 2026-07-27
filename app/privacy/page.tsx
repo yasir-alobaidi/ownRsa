@@ -12,7 +12,7 @@ const LAST_UPDATED = "July 22, 2026";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "Privacy Policy for Texas Roadside Assist.",
+  description: "Privacy Policy for Texas Roadside Assistance.",
   alternates: { canonical: "/privacy/" },
 };
 

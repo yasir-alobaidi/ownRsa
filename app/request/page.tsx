@@ -8,7 +8,7 @@ import { breadcrumbSchema } from "@/lib/schema";
 export const metadata: Metadata = {
   title: "Request Service",
   description:
-    "Tell us what you need and where you are. A Texas Roadside Assist dispatcher will call you back to confirm the details.",
+    "Tell us what you need and where you are. A Texas Roadside Assistance dispatcher will call you back to confirm the details.",
   alternates: {
     canonical: "/request/",
   },
