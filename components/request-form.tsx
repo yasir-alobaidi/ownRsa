@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, type FormEvent } from "react";
+import { useState, useEffect, useRef, Suspense, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { SERVICES, BUSINESS, type ServiceId } from "@/lib/services";
@@ -66,18 +66,31 @@ function getMapsUrl(location: string, gpsLat: number | null, gpsLng: number | nu
   return googleMapsUrl(location);
 }
 
-export function RequestForm() {
+// useSearchParams() opts its caller into client-only rendering unless wrapped
+// in Suspense, and during static export the Suspense fallback is what
+// actually ships as prerendered HTML -- so isolating it in this tiny,
+// render-nothing leaf (rather than calling it directly in RequestForm) keeps
+// the fallback's blast radius to "one invisible node" instead of "the whole
+// form," which would otherwise vanish from the static HTML entirely.
+function ServicePrefill({ onPrefill }: { onPrefill: (serviceId: ServiceId) => void }) {
   const searchParams = useSearchParams();
-  const [step, setStep] = useState(1);
-  const [data, setData] = useState<FormState>(() => {
-    // Lets a link like /request/?service=towing (used by the per-service
-    // landing pages) arrive with that service already checked.
+  const appliedRef = useRef(false);
+
+  useEffect(() => {
+    if (appliedRef.current) return;
     const preselect = searchParams.get("service");
     if (preselect && SERVICES.some((s) => s.id === preselect)) {
-      return { ...INITIAL_STATE, services: [preselect as ServiceId] };
+      appliedRef.current = true;
+      onPrefill(preselect as ServiceId);
     }
-    return INITIAL_STATE;
-  });
+  }, [searchParams, onPrefill]);
+
+  return null;
+}
+
+export function RequestForm() {
+  const [step, setStep] = useState(1);
+  const [data, setData] = useState<FormState>(INITIAL_STATE);
   const [touched, setTouched] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -286,6 +299,11 @@ export function RequestForm() {
 
   return (
     <>
+      <Suspense fallback={null}>
+        <ServicePrefill
+          onPrefill={(serviceId) => setData((p) => ({ ...p, services: [serviceId] }))}
+        />
+      </Suspense>
       <div className="step-tracker">
         {STEP_LABELS.map((label, i) => {
           const idx = i + 1;

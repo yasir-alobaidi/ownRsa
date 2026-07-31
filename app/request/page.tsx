@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import Link from "next/link";
 import { RequestForm } from "@/components/request-form";
 import { ChevronLeftIcon } from "@/components/icons";
@@ -35,10 +34,7 @@ export default function RequestPage() {
           <h1>Request Roadside Service</h1>
           <p>Takes about a minute. We'll call you to confirm the details.</p>
         </div>
-        {/* useSearchParams (for ?service= prefill) requires a Suspense boundary in a static export */}
-        <Suspense fallback={null}>
-          <RequestForm />
-        </Suspense>
+        <RequestForm />
       </div>
     </div>
   );
