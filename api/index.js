@@ -354,6 +354,27 @@ app.post("/api/request", async (req, res) => {
   return res.json({ ok: true, referenceId: ref });
 });
 
+// Twilio's own default STOP/START keyword handling runs before this webhook
+// is ever invoked, for any US long code -- so it already unsubscribes the
+// number and confirms it without any code here. HELP has no such platform
+// default, so it's the one keyword this replies to; everything else gets an
+// empty response, since these are one-way confirmation texts, not a
+// monitored two-way line (both the confirmation SMS and the Privacy Policy
+// say so). Point the Twilio number's "A Message Comes In" webhook at this
+// URL to wire it up.
+app.post("/api/sms-inbound", express.urlencoded({ extended: false }), (req, res) => {
+  const keyword = cleanString(req.body?.Body).toUpperCase();
+  const twiml = new twilio.twiml.MessagingResponse();
+
+  if (keyword === "HELP") {
+    twiml.message(
+      `Texas Roadside Assistance: For help, call us at ${businessPhoneDisplay}. Reply STOP to opt out.`
+    );
+  }
+
+  res.type("text/xml").send(twiml.toString());
+});
+
 app.listen(PORT, () => {
   console.log(`[api] listening on :${PORT} (twilio: ${twilioClient ? "on" : "demo"})`);
 });
