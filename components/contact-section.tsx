@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { BUSINESS, SERVICES } from "@/lib/services";
 import { PhoneIcon, EnvelopeIcon, ClockIcon, PinIcon } from "./icons";
 
@@ -52,9 +53,9 @@ export function ContactSection() {
               <li key={s.id}>{s.name}</li>
             ))}
           </ul>
-          <button type="button" className="btn btn-primary btn-block" disabled>
-            Coming Soon
-          </button>
+          <Link href="/request/" className="btn btn-primary btn-block">
+            Request Online
+          </Link>
         </div>
       </div>
     </section>

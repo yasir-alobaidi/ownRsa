@@ -35,7 +35,7 @@ export function Footer() {
                 <Link href="/#service-area">Service Area</Link>
               </li>
               <li>
-                <span>Request Service — Coming Soon</span>
+                <Link href="/request/">Request Service</Link>
               </li>
             </ul>
           </div>
