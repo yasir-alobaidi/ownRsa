@@ -31,6 +31,7 @@ interface FormState {
   name: string;
   phone: string;
   email: string;
+  smsConsent: boolean;
 }
 
 const INITIAL_STATE: FormState = {
@@ -44,6 +45,7 @@ const INITIAL_STATE: FormState = {
   name: "",
   phone: "",
   email: "",
+  smsConsent: false,
 };
 
 const STEP_LABELS = ["Services", "Location", "Contact"];
@@ -90,7 +92,8 @@ export function RequestForm() {
 
   const step1Valid = data.services.length > 0 || data.notSure;
   const step2Valid = data.location.trim().length > 0;
-  const step3Valid = data.name.trim().length > 0 && isPhoneLikelyValid(data.phone);
+  const step3Valid =
+    data.name.trim().length > 0 && isPhoneLikelyValid(data.phone) && data.smsConsent;
 
   const mapsLink = data.location.trim()
     ? getMapsUrl(data.location, data.gpsLat, data.gpsLng)
@@ -481,7 +484,7 @@ export function RequestForm() {
               value={data.phone}
               onChange={(e) => setData((p) => ({ ...p, phone: e.target.value }))}
             />
-            {touched && !step3Valid && (
+            {touched && (!data.name.trim() || !isPhoneLikelyValid(data.phone)) && (
               <p className="form-error">A valid name and US phone number are required.</p>
             )}
           </div>
@@ -505,10 +508,25 @@ export function RequestForm() {
             </div>
           )}
 
-          <p className="form-consent">
-            By submitting, you agree to our <Link href="/terms/">Terms of Service</Link> and{" "}
-            <Link href="/privacy/">Privacy Policy</Link>.
-          </p>
+          <div className="form-group form-checkbox-group">
+            <label htmlFor="rf-sms-consent" className="form-checkbox-label">
+              <input
+                id="rf-sms-consent"
+                type="checkbox"
+                checked={data.smsConsent}
+                onChange={(e) => setData((p) => ({ ...p, smsConsent: e.target.checked }))}
+              />
+              <span>
+                I agree to receive one (1) SMS from Texas Roadside Assistance confirming this
+                request, sent to the number above. Msg &amp; data rates may apply. Reply STOP to
+                opt out, HELP for help. See our <Link href="/terms/">Terms of Service</Link> and{" "}
+                <Link href="/privacy/">Privacy Policy</Link>.
+              </span>
+            </label>
+            {touched && !data.smsConsent && (
+              <p className="form-error">Please check the box to consent to the SMS confirmation.</p>
+            )}
+          </div>
 
           <div className="request-nav">
             <button type="button" className="btn btn-outline" onClick={goBack} disabled={submitting}>

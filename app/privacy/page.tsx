@@ -99,6 +99,28 @@ export default function PrivacyPage() {
           <li>You can contact us to ask what information we have about you or to request it be deleted, using the contact details below.</li>
         </ul>
 
+        <h2>SMS Terms</h2>
+        <p>
+          By checking the SMS consent box on the request form, you agree to receive one (1)
+          text message from Texas Roadside Assistance per service request you submit &mdash; a
+          one-time confirmation that your request was received and that a dispatcher will call
+          you back. Message frequency: one message per request submitted; we do not send
+          recurring, marketing, or promotional texts.
+        </p>
+        <p>
+          <strong>Message and data rates may apply.</strong> We do not sell or share your mobile
+          phone number or SMS opt-in data with third parties for marketing or promotional
+          purposes; it is used only to send this confirmation and is shared with Twilio solely
+          as our messaging processor (see &quot;How Information Is Shared&quot; above).
+        </p>
+        <p>
+          These confirmation texts are one-way and not monitored for replies. To stop receiving
+          texts, reply STOP, or call{" "}
+          <a href={`tel:${BUSINESS.phoneTel}`}>{BUSINESS.phoneDisplay}</a> and ask to be removed.
+          For help, reply HELP, call the same number, or email{" "}
+          <a href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a>.
+        </p>
+
         <h2>Children&apos;s Privacy</h2>
         <p>
           Our services are intended for adults arranging roadside assistance and are not
