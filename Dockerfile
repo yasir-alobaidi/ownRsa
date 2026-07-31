@@ -18,6 +18,7 @@ RUN npm run build
 # --- Stage 2: serve the static files with nginx --------------------------
 FROM nginx:1.27-alpine AS runner
 
+COPY nginx-ratelimit.conf /etc/nginx/conf.d/00-ratelimit.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/out /usr/share/nginx/html
 
