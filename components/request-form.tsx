@@ -302,241 +302,246 @@ export function RequestForm() {
         })}
       </div>
 
-      {step === 1 && (
-        <div className="request-card">
-          <h2>What do you need help with?</h2>
-          <p className="step-sub">Tap everything that applies — you can pick more than one.</p>
-          <div className="service-check-grid">
-            {SERVICES.map((service) => {
-              const Icon = SERVICE_ICONS[service.id];
-              const checked = data.services.includes(service.id);
-              return (
-                <label className={`service-check${checked ? " checked" : ""}`} key={service.id}>
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={() => toggleService(service.id)}
-                  />
-                  <Icon className="icon" />
-                  <span className="content">
-                    <span className="name">{service.name}</span>
-                    <span className="desc">{service.description}</span>
-                  </span>
-                  <span className="box">
-                    <CheckOnlyIcon />
-                  </span>
-                </label>
-              );
-            })}
-          </div>
-          <label className={`service-check not-sure-check${data.notSure ? " checked" : ""}`}>
-            <input type="checkbox" checked={data.notSure} onChange={toggleNotSure} />
-            <span className="content">
-              <span className="name">Not sure — I'll explain on the phone</span>
+      {/*
+        Steps stay mounted and toggle via the `hidden` attribute instead of
+        conditional rendering (`step === N && (...)`) so the whole wizard --
+        including the SMS consent checkbox on step 3 -- exists in the static
+        HTML output from the very first page load, not just after a user
+        clicks through steps 1 and 2. Carrier/Twilio A2P campaign review
+        loads this page without running the click-through flow, so the
+        consent checkbox has to be present in the initial markup to be seen
+        at all; `hidden` keeps the exact same interactive UX for real users
+        while making that possible.
+      */}
+      <div className="request-card" hidden={step !== 1}>
+        <h2>What do you need help with?</h2>
+        <p className="step-sub">Tap everything that applies — you can pick more than one.</p>
+        <div className="service-check-grid">
+          {SERVICES.map((service) => {
+            const Icon = SERVICE_ICONS[service.id];
+            const checked = data.services.includes(service.id);
+            return (
+              <label className={`service-check${checked ? " checked" : ""}`} key={service.id}>
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => toggleService(service.id)}
+                />
+                <Icon className="icon" />
+                <span className="content">
+                  <span className="name">{service.name}</span>
+                  <span className="desc">{service.description}</span>
+                </span>
+                <span className="box">
+                  <CheckOnlyIcon />
+                </span>
+              </label>
+            );
+          })}
+        </div>
+        <label className={`service-check not-sure-check${data.notSure ? " checked" : ""}`}>
+          <input type="checkbox" checked={data.notSure} onChange={toggleNotSure} />
+          <span className="content">
+            <span className="name">Not sure — I'll explain on the phone</span>
+          </span>
+          <span className="box">
+            <CheckOnlyIcon />
+          </span>
+        </label>
+        {touched && !step1Valid && (
+          <p className="form-error">Pick at least one option, or &quot;Not sure&quot;.</p>
+        )}
+        <div className="request-nav">
+          <span className="spacer" />
+          <button type="button" className="btn btn-primary" onClick={goNext}>
+            Next: Location
+            <ChevronRightIcon />
+          </button>
+        </div>
+      </div>
+
+      <div className="request-card" hidden={step !== 2}>
+        <h2>Where are you?</h2>
+        <p className="step-sub">
+          Street address, cross streets, mile marker, GPS, or a Google Maps
+          link — whatever gets our driver to you fastest.
+        </p>
+        <div className="form-group">
+          <label htmlFor="rf-location">Location</label>
+          <input
+            id="rf-location"
+            type="text"
+            placeholder="e.g. I-35E near Mockingbird Ln, Dallas"
+            value={data.location}
+            onChange={(e) => handleLocationChange(e.target.value)}
+          />
+          {touched && !step2Valid && <p className="form-error">Let us know roughly where you are.</p>}
+          <button
+            type="button"
+            className="geo-btn"
+            onClick={useMyLocation}
+            disabled={locating}
+          >
+            <LocationCrosshairIcon />
+            {locating ? "Getting GPS\u2026" : "Use my current GPS location"}
+          </button>
+          {geoError && <p className="form-error">{geoError}</p>}
+          {mapsLink && (
+            <p className="geo-hint">
+              Google Maps ready — copy{" "}
+              <code className="geo-coords">{data.location}</code> or{" "}
+              <a href={mapsLink} target="_blank" rel="noopener noreferrer">
+                open directions
+              </a>
+              .
+            </p>
+          )}
+          {data.gpsAccuracy != null && (
+            <p className={data.gpsAccuracy > 100 ? "geo-hint geo-hint-warn" : "geo-hint"}>
+              {data.gpsAccuracy > 100
+                ? `This location is only accurate to about ±${Math.round(
+                    data.gpsAccuracy
+                  )}m — for a faster response, add a nearby landmark or cross street below.`
+                : `Location accuracy: ±${Math.round(data.gpsAccuracy)}m.`}
+            </p>
+          )}
+        </div>
+        <div className="form-group">
+          <label htmlFor="rf-notes">
+            Anything else that helps us find you? <span className="optional">(optional)</span>
+          </label>
+          <textarea
+            id="rf-notes"
+            rows={3}
+            placeholder="e.g. silver Honda Civic, shoulder of the highway, near exit 34"
+            value={data.locationNotes}
+            onChange={(e) => setData((p) => ({ ...p, locationNotes: e.target.value }))}
+          />
+        </div>
+        <div className="request-nav">
+          <button type="button" className="btn btn-outline" onClick={goBack}>
+            <ChevronLeftIcon />
+            Back
+          </button>
+          <button type="button" className="btn btn-primary" onClick={goNext}>
+            Next: Contact Info
+            <ChevronRightIcon />
+          </button>
+        </div>
+      </div>
+
+      <form className="request-card" onSubmit={handleSubmit} noValidate hidden={step !== 3}>
+        <input
+          ref={honeypotRef}
+          type="text"
+          name="website"
+          className="hp-field"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          defaultValue=""
+        />
+        <h2>How can we reach you?</h2>
+        <p className="step-sub">
+          Phone and name are all we need. A dispatcher will text-alert our team and call you back right away.
+        </p>
+
+        <div className="review-list">
+          <div className="review-row">
+            <span className="k">Services</span>
+            <span className={`v${data.services.length === 0 && !data.notSure ? " empty" : ""}`}>
+              {data.notSure
+                ? "Not sure yet"
+                : data.services.length > 0
+                  ? data.services.map((id) => SERVICES.find((s) => s.id === id)?.name).join(", ")
+                  : "None selected"}
             </span>
-            <span className="box">
-              <CheckOnlyIcon />
+          </div>
+          <div className="review-row">
+            <span className="k">Location</span>
+            <span className={`v${!data.location ? " empty" : ""}`}>
+              {data.location || "Not provided"}
+              {mapsLink && data.location && (
+                <>
+                  {" "}
+                  (<a href={mapsLink} target="_blank" rel="noopener noreferrer">Maps</a>)
+                </>
+              )}
+            </span>
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="rf-name">Your Name</label>
+          <input
+            id="rf-name"
+            type="text"
+            placeholder="John Smith"
+            value={data.name}
+            onChange={(e) => setData((p) => ({ ...p, name: e.target.value }))}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="rf-phone">Phone Number (US)</label>
+          <input
+            id="rf-phone"
+            type="tel"
+            placeholder="(945) 555-0100"
+            value={data.phone}
+            onChange={(e) => setData((p) => ({ ...p, phone: e.target.value }))}
+          />
+          {touched && (!data.name.trim() || !isPhoneLikelyValid(data.phone)) && (
+            <p className="form-error">A valid name and US phone number are required.</p>
+          )}
+        </div>
+        <div className="form-group">
+          <label htmlFor="rf-email">
+            Email <span className="optional">(optional)</span>
+          </label>
+          <input
+            id="rf-email"
+            type="email"
+            placeholder="you@example.com"
+            value={data.email}
+            onChange={(e) => setData((p) => ({ ...p, email: e.target.value }))}
+          />
+        </div>
+
+        {submitError && (
+          <div className="submit-error">
+            <AlertIcon />
+            {submitError}
+          </div>
+        )}
+
+        <div className="form-group form-checkbox-group">
+          <label htmlFor="rf-sms-consent" className="form-checkbox-label">
+            <input
+              id="rf-sms-consent"
+              type="checkbox"
+              checked={data.smsConsent}
+              onChange={(e) => setData((p) => ({ ...p, smsConsent: e.target.checked }))}
+            />
+            <span>
+              <strong>(Optional)</strong> Yes, text me at the number above. Texas Roadside
+              Assistance will send one (1) SMS confirming this request. Msg &amp; data rates
+              may apply. Reply STOP to cancel, HELP for help. This is not required to submit
+              your request. See our <Link href="/terms/">Terms of Service</Link> and{" "}
+              <Link href="/privacy/">Privacy Policy</Link>.
             </span>
           </label>
-          {touched && !step1Valid && (
-            <p className="form-error">Pick at least one option, or &quot;Not sure&quot;.</p>
-          )}
-          <div className="request-nav">
-            <span className="spacer" />
-            <button type="button" className="btn btn-primary" onClick={goNext}>
-              Next: Location
-              <ChevronRightIcon />
-            </button>
-          </div>
         </div>
-      )}
 
-      {step === 2 && (
-        <div className="request-card">
-          <h2>Where are you?</h2>
-          <p className="step-sub">
-            Street address, cross streets, mile marker, GPS, or a Google Maps
-            link — whatever gets our driver to you fastest.
-          </p>
-          <div className="form-group">
-            <label htmlFor="rf-location">Location</label>
-            <input
-              id="rf-location"
-              type="text"
-              placeholder="e.g. I-35E near Mockingbird Ln, Dallas"
-              value={data.location}
-              onChange={(e) => handleLocationChange(e.target.value)}
-            />
-            {touched && !step2Valid && <p className="form-error">Let us know roughly where you are.</p>}
-            <button
-              type="button"
-              className="geo-btn"
-              onClick={useMyLocation}
-              disabled={locating}
-            >
-              <LocationCrosshairIcon />
-              {locating ? "Getting GPS\u2026" : "Use my current GPS location"}
-            </button>
-            {geoError && <p className="form-error">{geoError}</p>}
-            {mapsLink && (
-              <p className="geo-hint">
-                Google Maps ready — copy{" "}
-                <code className="geo-coords">{data.location}</code> or{" "}
-                <a href={mapsLink} target="_blank" rel="noopener noreferrer">
-                  open directions
-                </a>
-                .
-              </p>
-            )}
-            {data.gpsAccuracy != null && (
-              <p className={data.gpsAccuracy > 100 ? "geo-hint geo-hint-warn" : "geo-hint"}>
-                {data.gpsAccuracy > 100
-                  ? `This location is only accurate to about ±${Math.round(
-                      data.gpsAccuracy
-                    )}m — for a faster response, add a nearby landmark or cross street below.`
-                  : `Location accuracy: ±${Math.round(data.gpsAccuracy)}m.`}
-              </p>
-            )}
-          </div>
-          <div className="form-group">
-            <label htmlFor="rf-notes">
-              Anything else that helps us find you? <span className="optional">(optional)</span>
-            </label>
-            <textarea
-              id="rf-notes"
-              rows={3}
-              placeholder="e.g. silver Honda Civic, shoulder of the highway, near exit 34"
-              value={data.locationNotes}
-              onChange={(e) => setData((p) => ({ ...p, locationNotes: e.target.value }))}
-            />
-          </div>
-          <div className="request-nav">
-            <button type="button" className="btn btn-outline" onClick={goBack}>
-              <ChevronLeftIcon />
-              Back
-            </button>
-            <button type="button" className="btn btn-primary" onClick={goNext}>
-              Next: Contact Info
-              <ChevronRightIcon />
-            </button>
-          </div>
+        <div className="request-nav">
+          <button type="button" className="btn btn-outline" onClick={goBack} disabled={submitting}>
+            <ChevronLeftIcon />
+            Back
+          </button>
+          <button type="submit" className="btn btn-primary" disabled={submitting}>
+            {submitting ? "Sending\u2026" : "Submit Request"}
+          </button>
         </div>
-      )}
-
-      {step === 3 && (
-        <form className="request-card" onSubmit={handleSubmit} noValidate>
-          <input
-            ref={honeypotRef}
-            type="text"
-            name="website"
-            className="hp-field"
-            tabIndex={-1}
-            autoComplete="off"
-            aria-hidden="true"
-            defaultValue=""
-          />
-          <h2>How can we reach you?</h2>
-          <p className="step-sub">
-            Phone and name are all we need. A dispatcher will text-alert our team and call you back right away.
-          </p>
-
-          <div className="review-list">
-            <div className="review-row">
-              <span className="k">Services</span>
-              <span className={`v${data.services.length === 0 && !data.notSure ? " empty" : ""}`}>
-                {data.notSure
-                  ? "Not sure yet"
-                  : data.services.length > 0
-                    ? data.services.map((id) => SERVICES.find((s) => s.id === id)?.name).join(", ")
-                    : "None selected"}
-              </span>
-            </div>
-            <div className="review-row">
-              <span className="k">Location</span>
-              <span className={`v${!data.location ? " empty" : ""}`}>
-                {data.location || "Not provided"}
-                {mapsLink && data.location && (
-                  <>
-                    {" "}
-                    (<a href={mapsLink} target="_blank" rel="noopener noreferrer">Maps</a>)
-                  </>
-                )}
-              </span>
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="rf-name">Your Name</label>
-            <input
-              id="rf-name"
-              type="text"
-              placeholder="John Smith"
-              value={data.name}
-              onChange={(e) => setData((p) => ({ ...p, name: e.target.value }))}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="rf-phone">Phone Number (US)</label>
-            <input
-              id="rf-phone"
-              type="tel"
-              placeholder="(945) 555-0100"
-              value={data.phone}
-              onChange={(e) => setData((p) => ({ ...p, phone: e.target.value }))}
-            />
-            {touched && (!data.name.trim() || !isPhoneLikelyValid(data.phone)) && (
-              <p className="form-error">A valid name and US phone number are required.</p>
-            )}
-          </div>
-          <div className="form-group">
-            <label htmlFor="rf-email">
-              Email <span className="optional">(optional)</span>
-            </label>
-            <input
-              id="rf-email"
-              type="email"
-              placeholder="you@example.com"
-              value={data.email}
-              onChange={(e) => setData((p) => ({ ...p, email: e.target.value }))}
-            />
-          </div>
-
-          {submitError && (
-            <div className="submit-error">
-              <AlertIcon />
-              {submitError}
-            </div>
-          )}
-
-          <div className="form-group form-checkbox-group">
-            <label htmlFor="rf-sms-consent" className="form-checkbox-label">
-              <input
-                id="rf-sms-consent"
-                type="checkbox"
-                checked={data.smsConsent}
-                onChange={(e) => setData((p) => ({ ...p, smsConsent: e.target.checked }))}
-              />
-              <span>
-                <strong>(Optional)</strong> Yes, text me at the number above. Texas Roadside
-                Assistance will send one (1) SMS confirming this request. Msg &amp; data rates
-                may apply. Reply STOP to cancel, HELP for help. This is not required to submit
-                your request. See our <Link href="/terms/">Terms of Service</Link> and{" "}
-                <Link href="/privacy/">Privacy Policy</Link>.
-              </span>
-            </label>
-          </div>
-
-          <div className="request-nav">
-            <button type="button" className="btn btn-outline" onClick={goBack} disabled={submitting}>
-              <ChevronLeftIcon />
-              Back
-            </button>
-            <button type="submit" className="btn btn-primary" disabled={submitting}>
-              {submitting ? "Sending\u2026" : "Submit Request"}
-            </button>
-          </div>
-        </form>
-      )}
+      </form>
 
       {!referenceId && (
         <p className="request-footnote">
