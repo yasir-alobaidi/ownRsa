@@ -533,13 +533,19 @@ export function RequestForm() {
         )}
 
         <div className="form-group form-checkbox-group">
-          <label htmlFor="rf-sms-consent" className="form-checkbox-label">
+          <label
+            htmlFor="rf-sms-consent"
+            className={`form-checkbox-label${data.smsConsent ? " checked" : ""}`}
+          >
             <input
               id="rf-sms-consent"
               type="checkbox"
               checked={data.smsConsent}
               onChange={(e) => setData((p) => ({ ...p, smsConsent: e.target.checked }))}
             />
+            <span className="box">
+              <CheckOnlyIcon />
+            </span>
             <span>
               <strong>(Optional)</strong> Yes, text me at the number above. Texas Roadside
               Assistance will send one (1) SMS confirming this request. Msg &amp; data rates

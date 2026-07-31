@@ -481,7 +481,14 @@ section.alt{background:var(--bg-canvas-alt);}
 .request-footnote a:hover{text-decoration:underline;}
 
 .form-checkbox-group{margin-top:1.25rem;}
-.form-checkbox-label{display:flex;align-items:flex-start;gap:0.65rem;font-size:0.8rem;font-weight:400;color:var(--text-muted);line-height:1.5;cursor:pointer;}
-.form-checkbox-label input[type="checkbox"]{flex-shrink:0;width:18px;height:18px;margin-top:0.15rem;accent-color:var(--signal-500);cursor:pointer;}
+.form-checkbox-label{display:flex;align-items:flex-start;gap:0.85rem;font-size:0.8rem;font-weight:400;color:var(--text-muted);line-height:1.5;cursor:pointer;}
+.form-checkbox-label input[type="checkbox"]{position:absolute;opacity:0;width:0;height:0;}
+.form-checkbox-label .box{
+  width:22px;height:22px;border-radius:6px;border:2px solid var(--border-subtle);flex-shrink:0;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;transition:border-color .2s ease, background .2s ease;background:var(--bg-surface);
+}
+.form-checkbox-label.checked .box{background:var(--signal-500);border-color:var(--signal-500);}
+.form-checkbox-label .box svg{width:14px;height:14px;color:#fff;opacity:0;transition:opacity .15s ease;}
+.form-checkbox-label.checked .box svg{opacity:1;}
 .form-checkbox-label a{color:var(--accent-text);font-weight:600;}
 .form-checkbox-label a:hover{text-decoration:underline;}
