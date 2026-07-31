@@ -547,9 +547,9 @@ export function RequestForm() {
               <CheckOnlyIcon />
             </span>
             <span>
-              <strong>(Optional)</strong> Yes, text me at the number above. Texas Roadside
-              Assistance will send one (1) SMS confirming this request. Msg &amp; data rates
-              may apply. Reply STOP to cancel, HELP for help. This is not required to submit
+              <span className="optional-tag">(Optional)</span> Yes, text me at the number above.
+              Texas Roadside Assistance will send one (1) SMS confirming this request. Msg &amp; data
+              rates may apply. Reply STOP to cancel, HELP for help. This is not required to submit
               your request. See our <Link href="/terms/">Terms of Service</Link> and{" "}
               <Link href="/privacy/">Privacy Policy</Link>.
             </span>

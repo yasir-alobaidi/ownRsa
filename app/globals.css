@@ -480,15 +480,33 @@ section.alt{background:var(--bg-canvas-alt);}
 .request-footnote a{color:var(--accent-text);font-weight:600;}
 .request-footnote a:hover{text-decoration:underline;}
 
-.form-checkbox-group{margin-top:1.25rem;}
-.form-checkbox-label{display:flex;align-items:flex-start;gap:0.85rem;font-size:0.8rem;font-weight:400;color:var(--text-muted);line-height:1.5;cursor:pointer;}
+.form-checkbox-group{margin-top:1.5rem;}
+.form-checkbox-label{
+  display:flex;align-items:flex-start;gap:0.9rem;font-size:0.84rem;font-weight:400;
+  color:var(--text-secondary);line-height:1.55;cursor:pointer;
+  padding:0.9rem 1rem;border-radius:var(--radius-md);
+  border:1.5px solid var(--border-subtle);background:var(--bg-surface-2);
+  transition:border-color .2s ease, background .2s ease, box-shadow .2s ease;
+}
+.form-checkbox-label:hover{border-color:var(--signal-500);}
+.form-checkbox-label.checked{border-color:var(--signal-500);background:var(--signal-100);}
+[data-theme="dark"] .form-checkbox-label.checked{background:rgba(255,106,44,0.12);}
+.form-checkbox-label:has(input:focus-visible){
+  outline:2px solid var(--signal-500);outline-offset:2px;
+}
 .form-checkbox-label input[type="checkbox"]{position:absolute;opacity:0;width:0;height:0;}
 .form-checkbox-label .box{
-  width:22px;height:22px;border-radius:6px;border:2px solid var(--border-subtle);flex-shrink:0;margin-top:2px;
+  width:22px;height:22px;border-radius:6px;border:2px solid var(--border-subtle);flex-shrink:0;margin-top:1px;
   display:flex;align-items:center;justify-content:center;transition:border-color .2s ease, background .2s ease;background:var(--bg-surface);
 }
+.form-checkbox-label:hover .box{border-color:var(--signal-500);}
 .form-checkbox-label.checked .box{background:var(--signal-500);border-color:var(--signal-500);}
 .form-checkbox-label .box svg{width:14px;height:14px;color:#fff;opacity:0;transition:opacity .15s ease;}
 .form-checkbox-label.checked .box svg{opacity:1;}
 .form-checkbox-label a{color:var(--accent-text);font-weight:600;}
 .form-checkbox-label a:hover{text-decoration:underline;}
+.form-checkbox-label .optional-tag{
+  display:inline-block;padding:0.1rem 0.45rem;border-radius:4px;
+  font-size:0.75rem;font-weight:700;letter-spacing:0.03em;
+  background:var(--bg-chip-tint);color:var(--accent-text);margin-right:0.35rem;
+}
