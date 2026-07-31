@@ -92,8 +92,7 @@ export function RequestForm() {
 
   const step1Valid = data.services.length > 0 || data.notSure;
   const step2Valid = data.location.trim().length > 0;
-  const step3Valid =
-    data.name.trim().length > 0 && isPhoneLikelyValid(data.phone) && data.smsConsent;
+  const step3Valid = data.name.trim().length > 0 && isPhoneLikelyValid(data.phone);
 
   const mapsLink = data.location.trim()
     ? getMapsUrl(data.location, data.gpsLat, data.gpsLng)
@@ -153,6 +152,7 @@ export function RequestForm() {
       gpsAccuracy: data.gpsAccuracy,
       locationNotes: data.locationNotes.trim() || "(none)",
       mapsUrl,
+      smsConsent: data.smsConsent,
       website: honeypotRef.current?.value || "",
     };
 
@@ -517,15 +517,13 @@ export function RequestForm() {
                 onChange={(e) => setData((p) => ({ ...p, smsConsent: e.target.checked }))}
               />
               <span>
-                I agree to receive one (1) SMS from Texas Roadside Assistance confirming this
-                request, sent to the number above. Msg &amp; data rates may apply. Reply STOP to
-                opt out, HELP for help. See our <Link href="/terms/">Terms of Service</Link> and{" "}
+                <strong>(Optional)</strong> Yes, text me at the number above. Texas Roadside
+                Assistance will send one (1) SMS confirming this request. Msg &amp; data rates
+                may apply. Reply STOP to cancel, HELP for help. This is not required to submit
+                your request. See our <Link href="/terms/">Terms of Service</Link> and{" "}
                 <Link href="/privacy/">Privacy Policy</Link>.
               </span>
             </label>
-            {touched && !data.smsConsent && (
-              <p className="form-error">Please check the box to consent to the SMS confirmation.</p>
-            )}
           </div>
 
           <div className="request-nav">

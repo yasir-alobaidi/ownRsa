@@ -258,6 +258,7 @@ app.post("/api/request", async (req, res) => {
     gpsAccuracy,
     locationNotes,
     referenceId,
+    smsConsent,
     website, // honeypot -- real users never see or fill this field
   } = req.body || {};
 
@@ -317,12 +318,15 @@ app.post("/api/request", async (req, res) => {
     locationNotes: cleanString(locationNotes) || "(none)",
     mapsUrl,
   });
-  const customerSmsBody = buildCustomerConfirmationSms({ referenceId: ref });
+  const customerConsented = smsConsent === true;
+  const customerSmsBody = customerConsented
+    ? buildCustomerConfirmationSms({ referenceId: ref })
+    : null;
 
   if (!twilioClient) {
     console.warn("[api] Twilio not configured — request logged but SMS not sent:");
     console.warn(smsBody);
-    console.warn(customerSmsBody);
+    if (customerSmsBody) console.warn(customerSmsBody);
     return res.json({ ok: true, referenceId: ref, demo: true });
   }
 
@@ -339,16 +343,20 @@ app.post("/api/request", async (req, res) => {
     });
   }
 
-  // Best-effort: the dispatcher is already notified, so the request itself
-  // succeeded even if this confirmation text doesn't make it to the customer.
-  try {
-    await twilioClient.messages.create({
-      body: customerSmsBody,
-      from: TWILIO_FROM_NUMBER,
-      to: toE164UsPhone(cleanPhone),
-    });
-  } catch (err) {
-    console.error("[api] Customer confirmation SMS failed:", err);
+  // Only sent if the customer checked the (optional, unchecked-by-default)
+  // SMS consent box -- required so SMS opt-in stays separate from actually
+  // getting service, per carrier/CTIA rules. Best-effort either way: the
+  // dispatcher is already notified, so the request itself already succeeded.
+  if (customerSmsBody) {
+    try {
+      await twilioClient.messages.create({
+        body: customerSmsBody,
+        from: TWILIO_FROM_NUMBER,
+        to: toE164UsPhone(cleanPhone),
+      });
+    } catch (err) {
+      console.error("[api] Customer confirmation SMS failed:", err);
+    }
   }
 
   return res.json({ ok: true, referenceId: ref });
