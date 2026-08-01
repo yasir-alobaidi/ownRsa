@@ -55,6 +55,23 @@ function isPhoneLikelyValid(phone: string) {
   return digits.length >= 10;
 }
 
+// GeolocationPositionError only exposes a numeric .code -- .message is
+// browser-provided, inconsistent, and often too technical to act on -- so
+// this maps each code to the specific thing the person can actually go fix,
+// rather than one generic "didn't work" message for every cause.
+function describeGeoError(error: GeolocationPositionError): string {
+  switch (error.code) {
+    case error.PERMISSION_DENIED:
+      return "Location access is blocked. Check this site's location permission in your browser, and make sure your phone's Location setting is turned on for the browser app, then try again.";
+    case error.POSITION_UNAVAILABLE:
+      return "Your device couldn't determine its location. Make sure Location/GPS is turned on, then try again.";
+    case error.TIMEOUT:
+      return "Location took too long to respond. Try again, or type your address or cross streets instead.";
+    default:
+      return "Could not get your location. Type your address or cross streets instead.";
+  }
+}
+
 function getMapsUrl(location: string, gpsLat: number | null, gpsLng: number | null) {
   if (gpsLat != null && gpsLng != null) {
     return googleMapsUrl(location, gpsLat, gpsLng);
@@ -226,11 +243,11 @@ export function RequestForm() {
           finish();
         }
       },
-      () => {
+      (error) => {
         if (!settled) {
           settled = true;
           navigator.geolocation.clearWatch(watchId);
-          setGeoError("Could not get your location. Type your address or cross streets instead.");
+          setGeoError(describeGeoError(error));
           setLocating(false);
         }
       },
@@ -246,7 +263,7 @@ export function RequestForm() {
       navigator.geolocation.clearWatch(watchId);
 
       if (!best) {
-        setGeoError("Could not get your location. Type your address or cross streets instead.");
+        setGeoError("Location took too long to respond. Type your address or cross streets instead.");
         setLocating(false);
         return;
       }
