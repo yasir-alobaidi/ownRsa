@@ -221,6 +221,16 @@ export function RequestForm() {
 
     setLocating(true);
     setGeoError(null);
+    // Wipe out whatever's in the field from a previous attempt (an old fix,
+    // or an address typed by hand) so it can't be mistaken for the result
+    // of this attempt, whether this one succeeds or fails too.
+    setData((prev) => ({
+      ...prev,
+      location: "",
+      gpsLat: null,
+      gpsLng: null,
+      gpsAccuracy: null,
+    }));
 
     // A single getCurrentPosition call often returns whatever fix is
     // fastest -- frequently a coarse WiFi/cell-tower estimate -- rather than
